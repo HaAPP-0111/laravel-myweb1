@@ -8,9 +8,7 @@ use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\PostController;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', function () {return view('welcome');});
 Route::resource('admin/category', CategoryController::class);
 Route::get('/demo', [DemoController::class, 'index']);
 Route::get('/demo2', [DemoController::class, 'index2']);
@@ -22,3 +20,7 @@ Route::resource('admin/brand', BrandController::class);
 Route::resource('admin/product', ProductController::class);
 Route::resource('admin/user', UserController::class);
 Route::resource('admin/post', PostController::class);
+Route::get('/admin/dashboard', function () {return view('admin.dashboard');});
+Route::get('/admin/dashboard', function () {return view('admin.dashboard');})->name('admin.home');
+Route::get('/test1', [ProductController::class, 'test1']);
+Route::get('/test2', [ProductController::class, 'test2']);
