@@ -14,9 +14,14 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call([
+            // các seeder không có khóa ngoại
             CategorySeeder::class,
-            BrandSeeder::class, 
-            UserSeeder::class,    
+            BrandSeeder::class,
+            UserSeeder::class,
+            
+            // các seeder có khóa ngoại
+            ProductSeeder::class,
+            PostSeeder::class,
         ]);
     }
 }
