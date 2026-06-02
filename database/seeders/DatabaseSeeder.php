@@ -12,6 +12,10 @@ class DatabaseSeeder extends Seeder
             CategorySeeder::class,
             BrandSeeder::class,
             UserSeeder::class,
+
+            //cac seeder co khoa ngoai
+            ProductSeeder::class,
+            PostSeeder::class,
         ]);
     }
 }
