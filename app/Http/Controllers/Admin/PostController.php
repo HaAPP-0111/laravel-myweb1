@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Admin;
-
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
@@ -12,7 +12,23 @@ class PostController extends Controller
      */
     public function index()
     {
-        //
+       // Thực hiện lệnh JOIN để lấy tên người viết bài
+        $list = DB::table('posts')
+            ->join('users', 'posts.user_id', '=', 'users.id')
+            ->select(
+                'posts.id',
+                'posts.title',
+                'posts.slug',
+                'posts.image',
+                'posts.status',
+                'posts.created_at',
+                'users.fullname as author_name' // Lấy tên User làm tác giả hiển thị
+            )
+            ->orderBy('posts.created_at', 'desc')
+            ->get();
+
+        return view('admin.posts.index', compact('list'));
+    
     }
 
     /**

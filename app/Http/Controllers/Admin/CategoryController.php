@@ -1,7 +1,6 @@
 <?php
-
 namespace App\Http\Controllers\Admin;
-
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
@@ -12,7 +11,15 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        //
+        // Lấy các cột cần thiết từ bảng categories (bao gồm cả cột 'image' để hiển thị ảnh)
+        $list = DB::table('categories')
+            ->select('cateid', 'catename', 'slug', 'image', 'status')
+            ->where('status', 1)
+            ->orderBy('catename')
+            ->get();
+
+        // Truyền dữ liệu sang trang view
+        return view('admin.categories.index', compact('list'));
     }
 
     /**
@@ -20,7 +27,7 @@ class CategoryController extends Controller
      */
     public function create()
     {
-        //
+        return view('admin.categories.create');
     }
 
     /**
@@ -28,7 +35,19 @@ class CategoryController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'catename' => 'required|max:150',
+        ]);
+
+        DB::table('categories')->insert([
+            'catename'   => $request->catename,
+            'slug'       => $request->slug ?? Str::slug($request->catename),
+            'status'     => 1,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        return redirect()->route('admin.categories.index')->with('success', 'Thêm danh mục thành công!');
     }
 
     /**

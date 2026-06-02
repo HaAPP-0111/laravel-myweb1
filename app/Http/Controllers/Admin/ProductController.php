@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Admin;
-
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
@@ -12,7 +12,24 @@ class ProductController extends Controller
      */
     public function index()
     {
-        //
+       // Thực hiện JOIN các bảng liên quan để lấy thông tin trực quan
+        $list = DB::table('products')
+            ->join('categories', 'products.cateid', '=', 'categories.cateid')
+            ->leftJoin('brands', 'products.brandid', '=', 'brands.brandid')
+            ->select(
+                'products.id',
+                'products.productname',
+                'products.price',
+                'products.pricediscount',
+                'products.image',
+                'products.status',
+                'categories.catename as category_name', // Lấy tên Category thay vì ID
+                'brands.brandname as brand_name'        // Lấy tên Brand thay vì ID
+            )
+            ->orderBy('products.productname')
+            ->get();
+
+        return view('admin.products.index', compact('list'));
     }
 
     /**

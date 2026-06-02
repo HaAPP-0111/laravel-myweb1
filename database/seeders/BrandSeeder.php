@@ -8,20 +8,23 @@ use Illuminate\Support\Str;
 
 class BrandSeeder extends Seeder
 {
+    /**
+     * Run the database seeds.
+     */
     public function run(): void
     {
         for ($i = 1; $i <= 10; $i++) {
-            $brandName = fake()->unique()->company(); // Tạo tên công ty/thương hiệu ngẫu nhiên
-            
+            $name = fake()->unique()->company();
+
             DB::table('brands')->insert([
-                'brandname'   => $brandName,
-                'slug'        => Str::slug($brandName),
-                'image'       => null, // Hoặc fake()->imageUrl(200, 200, 'logo') nếu muốn có link ảnh mẫu
-                'status'      => fake()->numberBetween(0, 1),
-                'sort_order'  => $i,
-                'description' => fake()->sentence(20),
-                'created_at'  => now(),
-                'updated_at'  => now(),
+                'brandname' => $name,
+                'slug' => Str::slug($name),
+                'image' => 'brand' . $i . '.png',
+                'status' => fake()->numberBetween(0, 1),
+                'sort_order' => $i,
+                'description' => fake()->paragraph(2),
+                'created_at' => now(),
+                'updated_at' => now()
             ]);
         }
     }

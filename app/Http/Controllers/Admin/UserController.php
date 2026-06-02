@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
@@ -12,7 +13,13 @@ class UserController extends Controller
      */
     public function index()
     {
-        //
+        // Lấy dữ liệu bảng users đầy đủ các trường theo cấu trúc mới
+        $list = DB::table('users')
+            ->select('id', 'fullname', 'username', 'email', 'gender', 'role', 'status')
+            ->orderBy('username')
+            ->get();
+
+        return view('admin.users.index', compact('list'));
     }
 
     /**

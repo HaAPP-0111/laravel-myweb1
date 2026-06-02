@@ -33,7 +33,7 @@ return new class extends Migration
         // Khóa ngoại với bảng brands
         $table->foreignId('brandid')
               ->nullable()
-              ->constrained('brands')
+              ->constrained('brands','brandid')
               ->nullOnDelete();
 
         // Khóa ngoại với bảng categories (Đã được tối ưu ngắn gọn giống bảng brands)

@@ -12,7 +12,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('brands', function (Blueprint $table) {
-            $table->id();
+            // Đặt tên khóa chính là brandid theo thiết kế Lab 06 của bạn
+            $table->id('brandid'); 
+            $table->string('brandname', 150); 
+            $table->string('slug', 150)->unique();
+            $table->string('image', 200)->nullable();
+            $table->tinyInteger('status')->default(1); // 1: Hoạt động, 0: Tạm ẩn
+            $table->integer('sort_order')->default(0);
+            $table->text('description')->nullable();
             $table->timestamps();
         });
     }

@@ -31,7 +31,7 @@
 
                 {{-- MAIN CONTENT --}}
                 <main class="flex-grow-1 bg-light p-3">
-                    <h1>My Dashboard</h1>
+                    @yield('content')
                 </main>
 
                 {{-- FOOTER --}}
