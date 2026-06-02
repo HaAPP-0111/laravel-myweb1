@@ -20,16 +20,24 @@ Route::get('/demo4/{id}', [DemoController::class, 'index4']);
 Route::get('/demo5/{id?}', [DemoController::class, 'index5']);
 Route::get('/demo6/{parram1}/{parram2}', [DemoController::class, 'index6']);
 
-// Các Route Resource cho Admin
-Route::resource('admin/category', CategoryController::class);
-Route::resource('admin/brand', BrandController::class);
-Route::resource('admin/product', ProductController::class);
-Route::resource('admin/user', UserController::class);
-Route::resource('admin/post', PostController::class);
+// ==========================================
+// Các Route cấu trúc lại theo nhóm Admin (Theo tài liệu B.1)
+Route::prefix('admin')->name('admin.')->group(function () {
+    
+    // Trang Dashboard chính của Admin
+    Route::get('/dashboard', function () {
+        return view('admin.dashboard');
+    })->name('dashboard');
 
-Route::get('/admin/dashboard', function () {
-    return view('admin.dashboard');
-})->name('admin.dashboard');
+    // Các Route Resource cho Admin quản lý
+    Route::resource('categories', CategoryController::class);
+    Route::resource('brands', BrandController::class);
+    Route::resource('products', ProductController::class);
+    Route::resource('users', UserController::class);
+    Route::resource('posts', PostController::class);
+    
+});
+// ==========================================
 
 // Các Route Test chuyển hướng trong ProductController
 Route::get('test1', [ProductController::class, 'test1']);

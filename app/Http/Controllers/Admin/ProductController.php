@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ProductController extends Controller
 {
@@ -12,7 +13,24 @@ class ProductController extends Controller
      */
     public function index()
     {
-        //
+        $list = DB::table('products')
+            ->join('categories', 'products.cateid', '=', 'categories.cateid')
+            ->leftJoin('brands', 'products.brandid', '=', 'brands.brandid')
+            ->select(
+                'products.id',
+                'products.productname',
+                'products.slug',
+                'products.price',
+                'products.pricediscount',
+                'products.image',
+                'products.status',
+                'categories.catename as category_name',
+                'brands.brandname as brand_name'
+            )
+            ->orderBy('products.productname')
+            ->get();
+
+        return view('admin.products.index', compact('list'));
     }
 
     /**

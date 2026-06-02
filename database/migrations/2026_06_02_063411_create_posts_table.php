@@ -13,6 +13,19 @@ return new class extends Migration
     {
         Schema::create('posts', function (Blueprint $table) {
             $table->id();
+            $table->string('title', 200);
+            $table->string('slug', 220)->unique();
+            $table->string('image')->nullable();
+            $table->text('content')->nullable();
+            $table->tinyInteger('status')->default(1);
+
+            // FK: bài viết thuộc về user
+            $table->unsignedBigInteger('userid')->nullable();
+            $table->foreign('userid')
+                ->references('id')
+                ->on('users')
+                ->nullOnDelete();
+
             $table->timestamps();
         });
     }

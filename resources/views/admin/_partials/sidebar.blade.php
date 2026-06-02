@@ -16,11 +16,13 @@
         </h4>
         <ul class="nav flex-column">
             <li class="nav-item">
-                <a class="nav-link text-white" href="#">
+                {{-- Đã cập nhật link Dashboard --}}
+                <a class="nav-link text-white" href="{{ route('admin.dashboard') }}">
                     <i class="bi bi-house-door"></i>
                     Dashboard
                 </a>
             </li>
+            
             {{-- Menu expand --}}
             <li class="nav-item">
                 <a class="nav-link text-white" data-bs-toggle="collapse" href="#categoryMenu">
@@ -31,8 +33,19 @@
                 <div class="collapse" id="categoryMenu">
                     <ul class="nav flex-column ms-3">
                         <li class="nav-item">
-                            <a class="nav-link text-white" href="#">
-                                Danh sách loại sản phẩm
+                            {{-- Đã cập nhật route danh sách loại sản phẩm theo tài liệu B.2 --}}
+                            <a class="nav-link text-white" href="{{ route('admin.categories.index') }}">
+                                Loại Sản phẩm
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="{{ route('admin.brands.index') }}">
+                                Thương hiệu
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="{{ route('admin.users.index') }}">
+                                Người dùng
                             </a>
                         </li>
                         <li class="nav-item">
@@ -44,9 +57,15 @@
                 </div>
             </li>
             <li class="nav-item">
-                <a class="nav-link text-white" href="#">
+                <a class="nav-link text-white" href="{{ route('admin.products.index') }}">
                     <i class="bi bi-box-seam"></i>
                     Sản phẩm
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-white" href="{{ route('admin.posts.index') }}">
+                    <i class="bi bi-journal-text"></i>
+                    Bài viết
                 </a>
             </li>
         </ul>
