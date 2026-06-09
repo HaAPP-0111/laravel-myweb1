@@ -1,34 +1,35 @@
 <?php
 
 namespace App\Http\Controllers\Admin;
+
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class PostController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index($limit = 10)
     {
-       // Thực hiện lệnh JOIN để lấy tên người viết bài
+        // Đã sửa từ innerJoin thành join để đúng chuẩn cú pháp Laravel
         $list = DB::table('posts')
             ->join('users', 'posts.user_id', '=', 'users.id')
             ->select(
-                'posts.id',
+                'posts.id', 
                 'posts.title',
                 'posts.slug',
                 'posts.image',
                 'posts.status',
                 'posts.created_at',
-                'users.fullname as author_name' // Lấy tên User làm tác giả hiển thị
+                'users.fullname as author_name' 
             )
             ->orderBy('posts.created_at', 'desc')
-            ->get();
+            ->paginate($limit); 
 
         return view('admin.posts.index', compact('list'));
-    
     }
 
     /**
@@ -36,7 +37,7 @@ class PostController extends Controller
      */
     public function create()
     {
-        //
+        return view('admin.posts.create');
     }
 
     /**
@@ -44,31 +45,22 @@ class PostController extends Controller
      */
     public function store(Request $request)
     {
-        //
-    }
+        $request->validate([
+            'title' => 'required|max:255',
+            'detail' => 'required'
+        ]);
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
+        DB::table('posts')->insert([
+            'title' => $request->title,
+            'slug' => $request->slug ? Str::slug($request->slug) : Str::slug($request->title),
+            'detail' => $request->detail,
+            'status' => $request->status ?? 1,
+            'user_id' => 1, // Tạm thời gán ID người dùng viết bài là 1
+            'created_at' => now(),
+            'updated_at' => now()
+        ]);
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
+        return redirect()->route('admin.posts.index')->with('success', 'Thêm bài viết thành công!');
     }
 
     /**
@@ -76,6 +68,8 @@ class PostController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        DB::table('posts')->where('id', $id)->delete();
+
+        return redirect()->route('admin.posts.index')->with('success', 'Xóa bài viết thành công!');
     }
 }

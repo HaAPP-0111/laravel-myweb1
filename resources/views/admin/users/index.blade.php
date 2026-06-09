@@ -1,71 +1,53 @@
 @extends('admin.layouts.admin')
-
 @section('title', 'Quản lý Người Dùng')
-
 @section('content')
-<h2 class="mb-3">DANH SÁCH NGƯỜI DÙNG</h2>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>DANH SÁCH NGƯỜI DÙNG</h2>
+    <a href="{{ route('admin.users.create') }}" class="btn btn-success">+ Thêm mới</a>
+</div>
+
+@if(session('success'))
+    <div class="alert alert-success">{{ session('success') }}</div>
+@endif
 
 <table class="table table-bordered table-hover table-striped align-middle">
     <thead class="table-dark">
         <tr>
             <th>STT</th>
-            <th>Ảnh đại diện</th>
-            <th>Tên tài khoản</th>
+            <th>Mã số</th>
+            <th>Tài khoản</th>
             <th>Họ và tên</th>
             <th>Email</th>
-            <th>Giới tính</th>
-            <th>Vai trò</th>
             <th>Trạng thái</th>
+            <th class="text-center" style="width: 100px;">Chức năng</th>
         </tr>
     </thead>
     <tbody>
         @foreach($list as $index => $item)
         <tr>
-            <td>{{ $index + 1 }}</td>
-            
-            <td>
-                @if($item->gender == 1)
-                    <img src="{{ asset('images/avatar-male.png') }}" alt="Avatar" style="width: 45px; height: 45px; object-fit: cover; border-radius: 50%;">
-                @elseif($item->gender == 2)
-                    <img src="{{ asset('images/avatar-female.png') }}" alt="Avatar" style="width: 45px; height: 45px; object-fit: cover; border-radius: 50%;">
-                @else
-                    <img src="{{ asset('images/default.png') }}" alt="Avatar" style="width: 45px; height: 45px; object-fit: cover; border-radius: 50%;">
-                @endif
-            </td>
-            
-            <td class="fw-bold">{{ $item->username }}</td>
-            
+            <td>{{ ($list->currentPage() - 1) * $list->perPage() + $index + 1 }}</td>
+            <td>{{ $item->id }}</td>
+            <td>{{ $item->username }}</td>
             <td>{{ $item->fullname }}</td>
-            
             <td>{{ $item->email }}</td>
-            
             <td>
-                @if($item->gender == 1)
-                    <span class="text-primary"><i class="bi bi-gender-male"></i> Nam</span>
-                @elseif($item->gender == 2)
-                    <span class="text-danger"><i class="bi bi-gender-female"></i> Nữ</span>
-                @else
-                    <span class="text-muted">Chưa rõ</span>
-                @endif
+                <span class="badge {{ $item->status == 1 ? 'bg-success' : 'bg-danger' }}">
+                    {{ $item->status == 1 ? 'Hoạt động' : 'Khóa' }}
+                </span>
             </td>
-            
-            <td>
-                @if($item->role == 1)
-                    <span class="badge bg-danger">Quản lý</span>
-                @else
-                    <span class="badge bg-info text-dark">Nhân viên</span>
-                @endif
-            </td>
-            
-            <td>
-                @if($item->status == 1)
-                    <span class="badge bg-success">Kích hoạt</span>
-                @else
-                    <span class="badge bg-secondary">Bị khóa</span>
-                @endif
+            <td class="text-center">
+                <form action="{{ route('admin.users.destroy', $item->id) }}" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn xóa người dùng này?')">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="btn btn-danger btn-sm">Xóa</button>
+                </form>
             </td>
         </tr>
         @endforeach
     </tbody>
 </table>
+
+<div class="d-flex justify-content-center mt-3">
+    {{ $list->links() }}
+</div>
 @endsection

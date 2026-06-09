@@ -1,50 +1,59 @@
 @extends('admin.layouts.admin')
-
-@section('title', 'Quản lý Bài viết')
-
+@section('title', 'Quản lý Bài Viết')
 @section('content')
-<h2 class="mb-3">DANH SÁCH BÀI VIẾT</h2>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>DANH SÁCH BÀI VIẾT</h2>
+    <a href="{{ route('admin.posts.create') }}" class="btn btn-success">+ Thêm mới</a>
+</div>
 
-@php
-    $defaultImage = asset('images/default.png');
-@endphp
+@if(session('success'))
+    <div class="alert alert-success">{{ session('success') }}</div>
+@endif
 
 <table class="table table-bordered table-hover table-striped align-middle">
     <thead class="table-dark">
         <tr>
-            <th style="width: 70px">STT</th>
-            <th style="width: 90px">Ảnh</th>
+            <th>STT</th>
+            <th>Mã bài viết</th>
+            <th>Hình ảnh</th>
             <th>Tiêu đề bài viết</th>
-            <th>Slug</th>
             <th>Tác giả</th>
-            <th style="width: 140px">Trạng thái</th>
+            <th>Trạng thái</th>
+            <th class="text-center" style="width: 100px;">Chức năng</th>
         </tr>
     </thead>
     <tbody>
-        @foreach($list as $item)
-            @php
-                $candidate = $item->image ?? null;
-                $imageUrl = ($candidate && file_exists(public_path('images/' . $candidate)))
-                    ? asset('images/' . $candidate)
-                    : $defaultImage;
-            @endphp
-            <tr>
-                <td>{{ $loop->iteration }}</td>
-                <td>
-                    <img src="{{ $imageUrl }}" alt="{{ $item->title }}" style="width: 60px; height: 60px; object-fit: cover;" class="rounded border" />
-                </td>
-                <td class="fw-bold text-dark">{{ $item->title }}</td>
-                <td><small class="text-muted">{{ $item->slug }}</small></td>
-                <td><span class="badge bg-secondary">{{ $item->author_name }}</span></td>
-                <td>
-                    @if($item->status == 1)
-                        <span class="badge bg-success">Hiển thị</span>
-                    @else
-                        <span class="badge bg-danger">Ẩn</span>
-                    @endif
-                </td>
-            </tr>
+        @foreach($list as $index => $item)
+        <tr>
+            <td>{{ ($list->currentPage() - 1) * $list->perPage() + $index + 1 }}</td>
+            
+            <td>{{ $item->id }}</td>
+            
+            <td>
+                <img src="{{ asset('images/' . ($item->image ?? 'default.png')) }}" alt="Image" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;">
+            </td>
+            <td>{{ $item->title }}</td>
+            
+            <td>{{ $item->author_name ?? 'Ẩn danh' }}</td>
+            
+            <td>
+                <span class="badge {{ $item->status == 1 ? 'bg-success' : 'bg-danger' }}">
+                    {{ $item->status == 1 ? 'Hiển thị' : 'Ẩn' }}
+                </span>
+            </td>
+            <td class="text-center">
+                <form action="{{ route('admin.posts.destroy', $item->id) }}" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn xóa?')">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="btn btn-danger btn-sm">Xóa</button>
+                </form>
+            </td>
+        </tr>
         @endforeach
     </tbody>
 </table>
+
+<div class="d-flex justify-content-center mt-3">
+    {{ $list->links() }}
+</div>
 @endsection

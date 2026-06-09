@@ -21,7 +21,7 @@
             <th>Tên loại</th>
             <th>Slug</th>
             <th>Trạng thái</th>
-            <th class="text-center">Chức năng</th>
+            <th class="text-center" style="width: 150px;">Chức năng</th>
         </tr>
     </thead>
     <tbody>
@@ -40,14 +40,23 @@
                 </span>
             </td>
             <td class="text-center">
-                <form action="{{ route('admin.categories.destroy', $item->cateid) }}" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn xóa?')">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" class="btn btn-danger btn-sm">Xóa</button>
-                </form>
+                <div class="d-flex gap-1 justify-content-center">
+                    <a href="{{ route('admin.categories.edit', $item->cateid) }}" class="btn btn-warning btn-sm text-white">
+                        Sửa
+                    </a>
+
+                    <form action="{{ route('admin.categories.destroy', $item->cateid) }}" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn xóa?')">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-danger btn-sm">Xóa</button>
+                    </form>
+                </div>
             </td>
         </tr>
         @endforeach
     </tbody>
 </table>
+<div class="d-flex justify-content-center mt-3">
+    {{ $list->links() }}
+</div>
 @endsection

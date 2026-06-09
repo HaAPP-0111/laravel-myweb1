@@ -17,10 +17,12 @@ class User extends Authenticatable
      *
      * @var list<string>
      */
-    protected $fillable = [
+   protected $fillable = [
         'name',
         'email',
         'password',
+        'image',  // Bổ sung để quản lý ảnh đại diện
+        'status', // Bổ sung để quản lý kích hoạt/khóa tài khoản
     ];
 
     /**

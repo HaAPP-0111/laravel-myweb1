@@ -1,55 +1,55 @@
-{{-- Thừa kế layout từ view admin.blade.php --}}
 @extends('admin.layouts.admin')
-
-{{-- Gán nội dung cho vùng section 'title' --}}
-@section('title', 'Thương hiệu')
-
-{{-- Gán nội dung cho vùng section 'content' --}}
+@section('title', 'Quản lý Thương Hiệu')
 @section('content')
-<h2 class="mb-3">DANH SÁCH THƯƠNG HIỆU</h2>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>DANH SÁCH THƯƠNG HIỆU</h2>
+    <a href="{{ route('admin.brands.create') }}" class="btn btn-success">+ Thêm mới</a>
+</div>
 
-@php
-    // Đảm bảo file default.png nằm trong thư mục public/images/ cho đồng bộ
-    $defaultImage = asset('images/default.png');
-@endphp
+@if(session('success'))
+    <div class="alert alert-success">{{ session('success') }}</div>
+@endif
 
 <table class="table table-bordered table-hover table-striped align-middle">
     <thead class="table-dark">
         <tr>
-            <th style="width: 70px">STT</th>
-            <th style="width: 90px">Ảnh</th>
-            <th>Mã</th>
+            <th>STT</th>
+            <th>Mã thương hiệu</th>
+            <th>Hình ảnh</th>
             <th>Tên thương hiệu</th>
             <th>Slug</th>
-            <th style="width: 140px">Trạng thái</th>
+            <th>Trạng thái</th>
+            <th class="text-center" style="width: 100px;">Chức năng</th>
         </tr>
     </thead>
     <tbody>
-        @foreach($list as $item)
-            @php
-                $candidate = $item->image ?? null;
-                // Bổ sung đường dẫn 'images/' vào trước tên file để kiểm tra chính xác trong thư mục public/images/
-                $imageUrl = ($candidate && file_exists(public_path('images/' . $candidate)))
-                    ? asset('images/' . $candidate)
-                    : $defaultImage;
-            @endphp
-            <tr>
-                <td>{{ $loop->iteration }}</td>
-                <td>
-                    <img src="{{ $imageUrl }}" alt="{{ $item->brandname }}" style="width: 60px; height: 60px; object-fit: cover;" class="rounded border" />
-                </td>
-                <td>{{ $item->brandid }}</td>
-                <td class="fw-bold text-dark">{{ $item->brandname }}</td>
-                <td><small class="text-muted">{{ $item->slug }}</small></td>
-                <td>
-                    @if($item->status == 1)
-                        <span class="badge bg-success">Hiển thị</span>
-                    @else
-                        <span class="badge bg-danger">Ẩn</span>
-                    @endif
-                </td>
-            </tr>
+        @foreach($list as $index => $item)
+        <tr>
+            <td>{{ ($list->currentPage() - 1) * $list->perPage() + $index + 1 }}</td>
+            <td>{{ $item->brandid }}</td>
+            <td>
+                <img src="{{ asset('images/' . ($item->image ?? 'default.png')) }}" alt="Image" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;">
+            </td>
+            <td>{{ $item->brandname }}</td>
+            <td>{{ $item->slug }}</td>
+            <td>
+                <span class="badge {{ $item->status == 1 ? 'bg-success' : 'bg-danger' }}">
+                    {{ $item->status == 1 ? 'Hiển thị' : 'Ẩn' }}
+                </span>
+            </td>
+            <td class="text-center">
+                <form action="{{ route('admin.brands.destroy', $item->brandid) }}" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn xóa?')">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="btn btn-danger btn-sm">Xóa</button>
+                </form>
+            </td>
+        </tr>
         @endforeach
     </tbody>
 </table>
+
+<div class="d-flex justify-content-center mt-3">
+    {{ $list->links() }}
+</div>
 @endsection
