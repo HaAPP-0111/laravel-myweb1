@@ -11,9 +11,9 @@ class ProductController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $list = DB::table('products')
+        $query = DB::table('products')
             ->join('categories', 'products.cateid', '=', 'categories.cateid')
             ->leftJoin('brands', 'products.brandid', '=', 'brands.brandid')
             ->select(
@@ -24,13 +24,21 @@ class ProductController extends Controller
                 'products.pricediscount',
                 'products.image',
                 'products.status',
+                'products.cateid',
                 'categories.catename as category_name',
                 'brands.brandname as brand_name'
-            )
-            ->orderBy('products.productname')
-            ->get();
+            );
 
-        return view('admin.products.index', compact('list'));
+        $categoryName = null;
+        if ($request->filled('cateid')) {
+            $query->where('products.cateid', $request->query('cateid'));
+            $category = DB::table('categories')->where('cateid', $request->query('cateid'))->first();
+            $categoryName = $category?->catename;
+        }
+
+        $list = $query->orderBy('products.productname')->get();
+
+        return view('admin.products.index', compact('list', 'categoryName'));
     }
 
     /**

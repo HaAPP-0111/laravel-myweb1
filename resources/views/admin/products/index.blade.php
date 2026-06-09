@@ -8,6 +8,12 @@
 @section('content')
 <h2 class="mb-3">DANH SÁCH SẢN PHẨM</h2>
 
+@if(!empty($categoryName))
+    <div class="alert alert-info">
+        Hiển thị sản phẩm thuộc danh mục: <strong>{{ $categoryName }}</strong>
+    </div>
+@endif
+
 @php
     $defaultImage = asset('default.png');
 @endphp

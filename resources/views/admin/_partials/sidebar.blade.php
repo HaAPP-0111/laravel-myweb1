@@ -39,6 +39,16 @@
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link text-white" href="{{ route('admin.products.index') }}">
+                                Sản phẩm
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="{{ route('admin.posts.index') }}">
+                                Bài viết
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link text-white" href="{{ route('admin.brands.index') }}">
                                 Thương hiệu
                             </a>
@@ -55,18 +65,6 @@
                         </li>
                     </ul>
                 </div>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link text-white" href="{{ route('admin.products.index') }}">
-                    <i class="bi bi-box-seam"></i>
-                    Sản phẩm
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link text-white" href="{{ route('admin.posts.index') }}">
-                    <i class="bi bi-journal-text"></i>
-                    Bài viết
-                </a>
             </li>
         </ul>
     </div>

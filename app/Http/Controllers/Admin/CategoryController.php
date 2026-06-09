@@ -4,21 +4,19 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use App\Models\Category;
 
 class CategoryController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index($limit = 10)
     {
-        // Sử dụng Query Builder để lấy danh sách loại sản phẩm theo đúng tài liệu Lab 06
-        $list = DB::table('categories')
-            ->select('cateid', 'catename', 'slug', 'image', 'status')
-            ->where('status', 1)
+        // ==== ORM Eloquent có xử lý phân trang và đếm sản phẩm theo danh mục
+        $list = Category::withCount('products')
             ->orderBy('catename')
-            ->get();
+            ->paginate($limit);
 
         // Trả về giao diện index.blade.php kèm theo biến dữ liệu $list
         return view('admin.categories.index', compact('list'));
@@ -37,11 +35,20 @@ class CategoryController extends Controller
      */
     public function store(Request $request)
     {
-        DB::table('categories')->insert([
-            'catename' => $request->catename,
-            'slug' => $request->slug,
-            'created_at' => now(),
-            'updated_at' => now(),
+        $validated = $request->validate([
+            'catename' => 'required|string|max:255',
+            'slug' => 'required|string|max:255|unique:categories,slug',
+            'status' => 'sometimes|boolean',
+            'sort_order' => 'nullable|integer|min:0',
+            'description' => 'nullable|string',
+        ]);
+
+        Category::create([
+            'catename' => $validated['catename'],
+            'slug' => $validated['slug'],
+            'status' => $validated['status'] ?? 1,
+            'sort_order' => $validated['sort_order'] ?? 0,
+            'description' => $validated['description'] ?? null,
         ]);
 
         return redirect()->route('admin.categories.index')->with('success', 'Thêm loại sản phẩm thành công!');
@@ -52,7 +59,9 @@ class CategoryController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $category = Category::with('products')->findOrFail($id);
+
+        return view('admin.categories.show', compact('category'));
     }
 
     /**
@@ -60,7 +69,11 @@ class CategoryController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        // Lấy thông tin loại sản phẩm theo id
+        $category = Category::findOrFail($id);
+
+        // Trả về view edit cùng với dữ liệu category
+        return view('admin.categories.edit', compact('category'));
     }
 
     /**
@@ -68,7 +81,25 @@ class CategoryController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $category = Category::findOrFail($id);
+
+        $validated = $request->validate([
+            'catename' => 'required|string|max:255',
+            'slug' => 'required|string|max:255|unique:categories,slug,' . $category->cateid . ',cateid',
+            'status' => 'required|boolean',
+            'sort_order' => 'nullable|integer|min:0',
+            'description' => 'nullable|string',
+        ]);
+
+        $category->update([
+            'catename' => $validated['catename'],
+            'slug' => $validated['slug'],
+            'status' => $validated['status'],
+            'sort_order' => $validated['sort_order'] ?? 0,
+            'description' => $validated['description'] ?? null,
+        ]);
+
+        return redirect()->route('admin.categories.index')->with('success', 'Cập nhật loại sản phẩm thành công!');
     }
 
     /**
@@ -76,12 +107,8 @@ class CategoryController extends Controller
      */
     public function destroy(string $id)
     {
-        // Thực hiện xóa loại sản phẩm dựa trên cột khóa chính cateid
-        DB::table('categories')
-            ->where('cateid', $id)
-            ->delete();
+        Category::destroy($id);
 
-        // Quay lại trang danh sách kèm thông báo flash session
         return redirect()
             ->route('admin.categories.index')
             ->with('success', 'Xóa loại sản phẩm thành công!');
