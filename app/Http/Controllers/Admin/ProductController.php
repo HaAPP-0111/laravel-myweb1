@@ -63,7 +63,7 @@ class ProductController extends Controller
                 'brandid'       => $request->brandid,
                 'price'         => $request->price,
                 'pricediscount' => $request->pricediscount ?? 0,
-                'detail'        => $request->detail ?? '', // Đồng bộ với thuộc tính trong Model Product của bạn
+                'description'   => $request->description, // Đồng bộ với thuộc tính trong Model Product của bạn
                 'status'        => $request->status,
             ]);
 

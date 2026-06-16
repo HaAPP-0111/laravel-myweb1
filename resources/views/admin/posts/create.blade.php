@@ -22,10 +22,7 @@
             <label class="form-label fw-bold">Hình ảnh đại diện</label>
             <input type="file" name="image" class="form-control">
         </div>
-        <div class="mb-3">
-            <label class="form-label fw-bold">Mô tả ngắn</label>
-            <textarea name="description" class="form-control" rows="3">{{ old('description') }}</textarea>
-        </div>
+       
         <div class="mb-3">
             <label class="form-label fw-bold">Nội dung chi tiết</label>
             <textarea name="detail" class="form-control" rows="6">{{ old('detail') }}</textarea>
