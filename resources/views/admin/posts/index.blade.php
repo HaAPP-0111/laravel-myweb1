@@ -30,7 +30,7 @@
             <td>{{ $item->id }}</td>
             
             <td>
-                <img src="{{ asset('images/' . ($item->image ?? 'default.png')) }}" alt="Image" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;">
+                <img src="{{ asset('images/' . ($item->image ?? 'R.jpg')) }}" alt="Image" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;">
             </td>
             <td>{{ $item->title }}</td>
             

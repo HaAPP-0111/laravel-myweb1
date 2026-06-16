@@ -6,6 +6,9 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use App\Models\Category;
+use App\Models\Brand;
+use App\Models\Product;
 
 class ProductController extends Controller
 {
@@ -38,41 +41,51 @@ class ProductController extends Controller
      * Show the form for creating a new resource.
      */
     public function create()
-    {
-        // Lấy danh sách categories và brands truyền qua để làm select option khi thêm mới
-        $categories = DB::table('categories')->where('status', 1)->get();
-        $brands = DB::table('brands')->where('status', 1)->get();
+{
+    $categories = Category::select('cateid', 'catename')
+        ->orderBy('catename')
+        ->get();
 
-        return view('admin.products.create', compact('categories', 'brands'));
-    }
+    $brands = Brand::select('brandid', 'brandname')
+        ->orderBy('brandname')
+        ->get();
+
+    return view('admin.products.create', compact('categories', 'brands'));
+}
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
-    {
-        $request->validate([
-            'productname' => 'required|max:255',
-            'cateid' => 'required',
-            'brandid' => 'required',
-            'price' => 'required|numeric',
-        ]);
+ public function store(Request $request)
+{
+    $request->validate([
+        'productname' => 'required|max:255',
+        'cateid'      => 'required',
+        'brandid'     => 'required',
+        'price'       => 'required|numeric',
+    ]);
 
-        // Thêm dữ liệu vào bảng bằng DB Table
-        DB::table('products')->insert([
-            'productname' => $request->productname,
-            'slug' => $request->slug ? Str::slug($request->slug) : Str::slug($request->productname),
-            'cateid' => $request->cateid,
-            'brandid' => $request->brandid,
-            'price' => $request->price,
+    try {
+        Product::create([
+            'productname'   => $request->productname,
+            'slug'          => $request->slug ? Str::slug($request->slug) : Str::slug($request->productname),
+            'cateid'        => $request->cateid,
+            'brandid'       => $request->brandid,
+            'price'         => $request->price,
             'pricediscount' => $request->pricediscount ?? 0,
-            'status' => $request->status ?? 1,
-            'created_at' => now(), // Viết bằng DB thuần phải tự thêm thời gian
-            'updated_at' => now()
+            'description'   => $request->description,
+            'status'        => $request->status,
         ]);
 
-        return redirect()->route('admin.products.index')->with('success', 'Thêm sản phẩm thành công!');
+        return redirect()
+            ->route('admin.products.index')
+            ->with('success', 'Thêm sản phẩm thành công!');
+    } catch (\Exception $e) {
+        return back()
+            ->withInput()
+            ->with('error', $e->getMessage());
     }
+}
 
     /**
      * Display the specified resource.
@@ -93,10 +106,44 @@ class ProductController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
-    {
-        // Không làm chức năng sửa theo yêu cầu
+   public function update(Request $request, string $id)
+{
+    try {
+        // Kiểm tra loại sản phẩm
+        if (empty($request->cateid)) {
+            return back()
+                ->withInput()
+                ->with('error', 'Vui lòng chọn loại sản phẩm');
+        }
+
+        $product = Product::find($id);
+
+        if (!$product) {
+            return redirect()
+                ->route('admin.products.index')
+                ->with('error', 'Sản phẩm không tồn tại');
+        }
+
+        // Thực hiện cập nhật sản phẩm
+        $product->update([
+            'productname'   => $request->productname,
+            'cateid'        => $request->cateid,
+            'brandid'       => $request->brandid,
+            'price'         => $request->price,
+            'pricediscount' => $request->pricediscount,
+            'status'        => $request->status,
+            'description'   => $request->description,
+        ]);
+
+        return redirect()
+            ->route('admin.products.index')
+            ->with('success', 'Cập nhật sản phẩm thành công');
+    } catch (\Exception $e) {
+        return back()
+            ->withInput()
+            ->with('error', $e->getMessage());
     }
+}
 
     /**
      * Remove the specified resource from storage.

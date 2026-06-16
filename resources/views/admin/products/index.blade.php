@@ -1,5 +1,7 @@
 @extends('admin.layouts.admin')
+
 @section('title', 'Quản lý Sản Phẩm')
+
 @section('content')
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h2>DANH SÁCH SẢN PHẨM</h2>
@@ -21,23 +23,23 @@
             <th>Giá gốc</th>
             <th>Giá giảm</th>
             <th>Trạng thái</th>
-            <th class="text-center" style="width: 100px;">Chức năng</th>
+            <th class="text-center" style="width: 120px;">Chức năng</th>
         </tr>
     </thead>
     <tbody>
         @foreach($list as $index => $item)
         <tr>
             <td>{{ ($list->currentPage() - 1) * $list->perPage() + $index + 1 }}</td>
-            
+
             <td>{{ $item->id }}</td>
-            
+
             <td>
-                <img src="{{ asset('images/' . ($item->image ?? 'default.png')) }}" alt="Image" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;">
+                <img src="{{ asset('images/' . ($item->image ?? 'R.jpg')) }}" alt="Image" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;">
             </td>
             <td>{{ $item->productname }}</td>
-            
+
             <td>{{ $item->category_name ?? 'Không rõ' }}</td>
-            
+
             <td>{{ number_format($item->price, 0, ',', '.') }} đ</td>
             <td>{{ number_format($item->pricediscount, 0, ',', '.') }} đ</td>
             <td>
@@ -46,10 +48,17 @@
                 </span>
             </td>
             <td class="text-center">
-                <form action="{{ route('admin.products.destroy', $item->id) }}" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn xóa sản phẩm này?')">
+                <a href="{{ route('admin.products.edit', $item->id) }}" class="btn btn-warning btn-sm">
+                    <i class="bi bi-pencil-square"></i>
+                </a>
+
+                <form action="{{ route('admin.products.destroy', $item->id) }}" method="POST"
+                      onsubmit="return confirm('Bạn có chắc chắn muốn xóa sản phẩm này?')" class="d-inline">
                     @csrf
                     @method('DELETE')
-                    <button type="submit" class="btn btn-danger btn-sm">Xóa</button>
+                    <button type="submit" class="btn btn-danger btn-sm">
+                        <i class="bi bi-trash"></i>
+                    </button>
                 </form>
             </td>
         </tr>
