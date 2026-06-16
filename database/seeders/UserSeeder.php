@@ -15,7 +15,11 @@ class UserSeeder extends Seeder
                 'fullname'   => fake()->name(),
                 'username'   => fake()->unique()->userName(),
                 'email'      => fake()->unique()->safeEmail(),
+<<<<<<< HEAD
                 'password'   => md5('123456'), // Tài liệu thiết kế VARCHAR(50) nên sử dụng md5 hoặc chuỗi text thường để test nhanh phù hợp độ dài.
+=======
+                'password'   => Hash::make('123456'), // Tài liệu thiết kế VARCHAR(50) nên sử dụng md5 hoặc chuỗi text thường để test nhanh phù hợp độ dài.
+>>>>>>> fca0cb4305e90ded0a3aae37799d569b63faf474
                 'phone'      => fake()->unique()->phoneNumber(),
                 'address'    => fake()->address(),
                 'gender'     => fake()->randomElement([0, 1, 2]), // 1: Nam, 2: Nữ, 0: Khác

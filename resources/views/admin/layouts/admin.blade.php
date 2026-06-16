@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 <!DOCTYPE html>
+=======
+﻿<!DOCTYPE html>
+>>>>>>> fca0cb4305e90ded0a3aae37799d569b63faf474
 <html lang="en">
 
 <head>
@@ -21,7 +25,10 @@
             <div class="col-md-2 bg-dark text-white p-0">
                 @include('admin._partials.sidebar')
             </div>
+<<<<<<< HEAD
 
+=======
+>>>>>>> fca0cb4305e90ded0a3aae37799d569b63faf474
             {{-- RIGHT CONTENT --}}
             <div class="col-md-10 d-flex flex-column p-0">
                 {{-- HEADER --}}
@@ -46,4 +53,8 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
+<<<<<<< HEAD
 </html>
+=======
+</html>
+>>>>>>> fca0cb4305e90ded0a3aae37799d569b63faf474
