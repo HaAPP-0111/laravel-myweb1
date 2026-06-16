@@ -1,9 +1,11 @@
 @extends('admin.layouts.admin')
-@section('title', 'Quản lý Thương Hiệu')
+@section('title', 'Danh sách thương hiệu')
 @section('content')
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h2>DANH SÁCH THƯƠNG HIỆU</h2>
-    <a href="{{ route('admin.brands.create') }}" class="btn btn-success">+ Thêm mới</a>
+    <a href="{{ route('admin.brands.create') }}" class="btn btn-primary">
+        <i class="bi bi-plus-circle"></i> Thêm mới
+    </a>
 </div>
 
 @if(session('success'))
@@ -15,11 +17,10 @@
         <tr>
             <th>STT</th>
             <th>Mã thương hiệu</th>
-            <th>Hình ảnh</th>
             <th>Tên thương hiệu</th>
             <th>Slug</th>
             <th>Trạng thái</th>
-            <th class="text-center" style="width: 100px;">Chức năng</th>
+            <th class="text-center" style="width: 120px;">Chức năng</th>
         </tr>
     </thead>
     <tbody>
@@ -27,9 +28,6 @@
         <tr>
             <td>{{ ($list->currentPage() - 1) * $list->perPage() + $index + 1 }}</td>
             <td>{{ $item->brandid }}</td>
-            <td>
-                <img src="{{ asset('images/' . ($item->image ?? 'default.png')) }}" alt="Image" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;">
-            </td>
             <td>{{ $item->brandname }}</td>
             <td>{{ $item->slug }}</td>
             <td>
@@ -38,11 +36,11 @@
                 </span>
             </td>
             <td class="text-center">
-                <form action="{{ route('admin.brands.destroy', $item->brandid) }}" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn xóa?')">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" class="btn btn-danger btn-sm">Xóa</button>
-                </form>
+                <div class="d-flex gap-1 justify-content-center">
+                    <a href="{{ route('admin.brands.edit', $item->brandid) }}" class="btn btn-warning btn-sm">
+                        <i class="bi bi-pencil-square"></i>
+                    </a>
+                </div>
             </td>
         </tr>
         @endforeach

@@ -15,7 +15,7 @@ class Product extends Model
     // Đổi sang 'id' để đồng bộ khớp hoàn toàn với câu lệnh SQL ở Controller và Database của bạn
     protected $primaryKey = 'id';
 
-    // Các cột cho phép thêm/sửa dữ liệu (Bổ sung thêm trường pricediscount)
+    // Các cột cho phép thêm/sửa dữ liệu hàng loạt (Mass Assignment)
     protected $fillable = [
         'productname',
         'slug',
@@ -23,8 +23,9 @@ class Product extends Model
         'brandid',
         'image',
         'price',
-        'pricediscount', // Bổ sung trường giảm giá này vào đây
-        'detail',
+        'pricediscount', 
+        'detail',        // Giữ lại 'detail' nếu DB của bạn dùng trường này
+        'description',   // BỔ SUNG THÊM: trường 'description' để đi theo đúng chuẩn file Lab 08 mẫu
         'status'
     ];
 }

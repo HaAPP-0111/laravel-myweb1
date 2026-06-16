@@ -1,11 +1,11 @@
 @extends('admin.layouts.admin')
-
-@section('title', 'Quản lý Loại Sản Phẩm')
-
+@section('title', 'Danh sách danh mục')
 @section('content')
 <div class="d-flex justify-content-between align-items-center mb-3">
-    <h2>DANH SÁCH LOẠI SẢN PHẨM</h2>
-    <a href="{{ route('admin.categories.create') }}" class="btn btn-success">+ Thêm mới</a>
+    <h2>DANH SÁCH DANH MỤC</h2>
+    <a href="{{ route('admin.categories.create') }}" class="btn btn-primary">
+        <i class="bi bi-plus-circle"></i> Thêm mới
+    </a>
 </div>
 
 @if(session('success'))
@@ -16,22 +16,18 @@
     <thead class="table-dark">
         <tr>
             <th>STT</th>
-            <th>Mã loại</th>
-            <th>Hình ảnh</th>
-            <th>Tên loại</th>
+            <th>Mã danh mục</th>
+            <th>Tên danh mục</th>
             <th>Slug</th>
             <th>Trạng thái</th>
-            <th class="text-center" style="width: 150px;">Chức năng</th>
+            <th class="text-center" style="width: 120px;">Chức năng</th>
         </tr>
     </thead>
     <tbody>
         @foreach($list as $index => $item)
         <tr>
-            <td>{{ $index + 1 }}</td>
+            <td>{{ ($list->currentPage() - 1) * $list->perPage() + $index + 1 }}</td>
             <td>{{ $item->cateid }}</td>
-            <td>
-                <img src="{{ asset('images/' . ($item->image ?? 'default.png')) }}" alt="Image" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;">
-            </td>
             <td>{{ $item->catename }}</td>
             <td>{{ $item->slug }}</td>
             <td>
@@ -41,21 +37,16 @@
             </td>
             <td class="text-center">
                 <div class="d-flex gap-1 justify-content-center">
-                    <a href="{{ route('admin.categories.edit', $item->cateid) }}" class="btn btn-warning btn-sm text-white">
-                        Sửa
+                    <a href="{{ route('admin.categories.edit', $item->cateid) }}" class="btn btn-warning btn-sm">
+                        <i class="bi bi-pencil-square"></i>
                     </a>
-
-                    <form action="{{ route('admin.categories.destroy', $item->cateid) }}" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn xóa?')">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="btn btn-danger btn-sm">Xóa</button>
-                    </form>
                 </div>
             </td>
         </tr>
         @endforeach
     </tbody>
 </table>
+
 <div class="d-flex justify-content-center mt-3">
     {{ $list->links() }}
 </div>

@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use App\Models\Post; // SỬA LỖI 1: Bắt buộc phải import Model Post vào đây
 
 class PostController extends Controller
 {
@@ -14,7 +15,6 @@ class PostController extends Controller
      */
     public function index($limit = 10)
     {
-        // Đã sửa từ innerJoin thành join để đúng chuẩn cú pháp Laravel
         $list = DB::table('posts')
             ->join('users', 'posts.user_id', '=', 'users.id')
             ->select(
@@ -45,22 +45,78 @@ class PostController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'title' => 'required|max:255',
-            'detail' => 'required'
-        ]);
+        try {
+            Post::create([
+                'title'       => $request->title,
+                'slug'        => $request->slug ? Str::slug($request->slug) : Str::slug($request->title),
+                'description' => $request->description ?? '',
+                'detail'      => $request->detail ?? '',
+                'status'      => $request->status ?? 1,
+                'user_id'     => auth()->id() ?? 1 // Tạm thời lấy ID user đăng nhập hoặc mặc định là 1 để tránh lỗi khóa ngoại
+            ]);
 
-        DB::table('posts')->insert([
-            'title' => $request->title,
-            'slug' => $request->slug ? Str::slug($request->slug) : Str::slug($request->title),
-            'detail' => $request->detail,
-            'status' => $request->status ?? 1,
-            'user_id' => 1, // Tạm thời gán ID người dùng viết bài là 1
-            'created_at' => now(),
-            'updated_at' => now()
-        ]);
+            return redirect()
+                ->route('admin.posts.index')
+                ->with('success', 'Thêm bài viết thành công');
+        } catch (\Exception $e) {
+            return back()
+                ->withInput()
+                ->with('error', $e->getMessage());
+        }
+    }
 
-        return redirect()->route('admin.posts.index')->with('success', 'Thêm bài viết thành công!');
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit(string $id)
+    {
+        $post = Post::find($id);
+
+        if (!$post) {
+            return redirect()
+                ->route('admin.posts.index')
+                ->with('error', 'Bài viết không tồn tại!');
+        }
+
+        return view('admin.posts.edit', compact('post'));
+    }
+
+    /**
+     * SỬA LỖI 2: Bổ sung phương thức update() xử lý lưu dữ liệu sửa đổi bằng Eloquent ORM
+     */
+    public function update(Request $request, string $id)
+    {
+        try {
+            // Tìm bài viết theo ID
+            $post = Post::find($id);
+
+            // Kiểm tra sự tồn tại của bài viết
+            if (!$post) {
+                return redirect()
+                    ->route('admin.posts.index')
+                    ->with('error', 'Bài viết không tồn tại');
+            }
+
+            // Tiến hành cập nhật bằng Eloquent ORM
+            $post->update([
+                'title'       => $request->title,
+                'slug'        => $request->slug ? Str::slug($request->slug) : Str::slug($request->title),
+                'description' => $request->description ?? '',
+                'detail'      => $request->detail ?? '',
+                'status'      => $request->status ?? 1,
+            ]);
+
+            // Trả về trang danh sách kèm thông báo thành công
+            return redirect()
+                ->route('admin.posts.index')
+                ->with('success', 'Cập nhật bài viết thành công');
+
+        } catch (\Exception $e) {
+            // Trả về trang sửa kèm dữ liệu cũ và thông báo lỗi nếu thất bại
+            return back()
+                ->withInput()
+                ->with('error', $e->getMessage());
+        }
     }
 
     /**

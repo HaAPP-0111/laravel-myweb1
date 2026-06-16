@@ -1,37 +1,45 @@
 @extends('admin.layouts.admin')
-@section('title', 'Thêm Bài Viết')
+@section('title', 'Thêm bài viết')
 @section('content')
-<div class="card p-4 shadow-sm" style="max-width: 700px; margin: 0 auto;">
-    <h3 class="mb-4 text-primary text-uppercase fw-bold">THÊM BÀI VIẾT MỚI</h3>
-    <form action="{{ route('admin.posts.store') }}" method="POST">
+<div class="card p-4 shadow-sm" style="max-width: 800px; margin: 0 auto;">
+    <h3 class="mb-4 text-primary fw-bold">THÊM BÀI VIẾT MỚI</h3>
+
+    @if(session('error'))
+        <div class="alert alert-danger">{{ session('error') }}</div>
+    @endif
+
+    <form action="{{ route('admin.posts.store') }}" method="POST" enctype="multipart/form-data">
         @csrf
         <div class="mb-3">
             <label class="form-label fw-bold">Tiêu đề bài viết</label>
-            <input type="text" name="title" class="form-control" value="{{ old('title') }}" placeholder="Nhập tiêu đề..." required>
-            @error('title')
-                <div class="text-danger small mt-1">{{ $message }}</div>
-            @enderror
+            <input type="text" name="title" class="form-control" value="{{ old('title') }}" required>
         </div>
         <div class="mb-3">
-            <label class="form-label fw-bold">Slug (Không bắt buộc)</label>
-            <input type="text" name="slug" class="form-control" value="{{ old('slug') }}" placeholder="Để trống tự động tạo slug...">
+            <label class="form-label fw-bold">Slug</label>
+            <input type="text" name="slug" class="form-control" value="{{ old('slug') }}">
+        </div>
+        <div class="mb-3">
+            <label class="form-label fw-bold">Hình ảnh đại diện</label>
+            <input type="file" name="image" class="form-control">
+        </div>
+        <div class="mb-3">
+            <label class="form-label fw-bold">Mô tả ngắn</label>
+            <textarea name="description" class="form-control" rows="3">{{ old('description') }}</textarea>
         </div>
         <div class="mb-3">
             <label class="form-label fw-bold">Nội dung chi tiết</label>
-            <textarea name="detail" class="form-control" rows="5" placeholder="Nhập nội dung bài viết..." required>{{ old('detail') }}</textarea>
-            @error('detail')
-                <div class="text-danger small mt-1">{{ $message }}</div>
-            @enderror
+            <textarea name="detail" class="form-control" rows="6">{{ old('detail') }}</textarea>
         </div>
         <div class="mb-3">
-            <label class="form-label fw-bold">Trạng thái hiển thị</label>
-            <select name="status" class="form-select">
-                <option value="1" {{ old('status', '1') == '1' ? 'selected' : '' }}>Hiển thị (Bật)</option>
-                <option value="0" {{ old('status') == '0' ? 'selected' : '' }}>Ẩn (Tắt)</option>
-            </select>
+            <label class="form-label fw-bold d-block">Trạng thái bài đăng</label>
+            <input type="radio" class="btn-check" name="status" id="active" value="1" {{ old('status', 1) == 1 ? 'checked' : '' }}>
+            <label class="btn btn-outline-success" for="active">Công khai</label>
+
+            <input type="radio" class="btn-check" name="status" id="inactive" value="0" {{ old('status', 1) == 0 ? 'checked' : '' }}>
+            <label class="btn btn-outline-danger" for="inactive">Bản nháp</label>
         </div>
         <div class="d-flex gap-2">
-            <button type="submit" class="btn btn-primary px-4">Lưu lại</button>
+            <button type="submit" class="btn btn-primary px-4">Đăng bài viết</button>
             <a href="{{ route('admin.posts.index') }}" class="btn btn-secondary px-4">Quay lại</a>
         </div>
     </form>

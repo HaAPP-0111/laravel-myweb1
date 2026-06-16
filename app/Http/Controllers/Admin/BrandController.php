@@ -34,17 +34,21 @@ class BrandController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'brandname' => 'required|max:150',
-        ]);
+        try {
+            Brand::create([
+                'brandname' => $request->brandname,
+                'slug'      => $request->slug ? Str::slug($request->slug) : Str::slug($request->brandname),
+                'status'    => $request->status ?? 1,
+            ]);
 
-        Brand::create([
-            'brandname' => $request->brandname,
-            'slug'      => $request->slug ? Str::slug($request->slug) : Str::slug($request->brandname),
-            'status'    => $request->status ?? 1,
-        ]);
-
-        return redirect()->route('admin.brands.index')->with('success', 'Thêm thương hiệu thành công!');
+            return redirect()
+                ->route('admin.brands.index')
+                ->with('success', 'Thêm thương hiệu thành công');
+        } catch (\Exception $e) {
+            return back()
+                ->withInput()
+                ->with('error', $e->getMessage());
+        }
     }
 
     /**
@@ -60,7 +64,14 @@ class BrandController extends Controller
      */
     public function edit(string $id)
     {
-        $brand = Brand::findOrFail($id); // Tìm theo khóa chính 'brandid' đã cấu hình trong Model
+        // THAY ĐỔI: Sử dụng where() tìm theo brandid thay vì find() tìm theo id mặc định
+        $brand = Brand::where('brandid', $id)->first();
+
+        if (!$brand) {
+            return redirect()
+                ->route('admin.brands.index')
+                ->with('error', 'Thương hiệu không tồn tại!');
+        }
 
         return view('admin.brands.edit', compact('brand'));
     }
@@ -70,19 +81,30 @@ class BrandController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $request->validate([
-            'brandname' => 'required|max:150',
-        ]);
+        try {
+            // THAY ĐỔI: Sử dụng where() tìm theo brandid thay vì find() tìm theo id mặc định
+            $brand = Brand::where('brandid', $id)->first();
 
-        $brand = Brand::findOrFail($id);
-        
-        $brand->update([
-            'brandname' => $request->brandname,
-            'slug'      => $request->slug ? Str::slug($request->slug) : Str::slug($request->brandname),
-            'status'    => $request->status,
-        ]);
+            if (!$brand) {
+                return redirect()
+                    ->route('admin.brands.index')
+                    ->with('error', 'Thương hiệu không tồn tại');
+            }
 
-        return redirect()->route('admin.brands.index')->with('success', 'Cập nhật thương hiệu thành công!');
+            $brand->update([
+                'brandname' => $request->brandname,
+                'slug'      => $request->slug ? Str::slug($request->slug) : Str::slug($request->brandname),
+                'status'    => $request->status ?? 1,
+            ]);
+
+            return redirect()
+                ->route('admin.brands.index')
+                ->with('success', 'Cập nhật thương hiệu thành công');
+        } catch (\Exception $e) {
+            return back()
+                ->withInput()
+                ->with('error', $e->getMessage());
+        }
     }
 
     /**
@@ -90,7 +112,8 @@ class BrandController extends Controller
      */
     public function destroy(string $id)
     {
-        $brand = Brand::findOrFail($id);
+        // THAY ĐỔI: Sử dụng cấu trúc tìm và xóa chính xác theo khóa chính brandid
+        $brand = Brand::where('brandid', $id)->firstOrFail();
         $brand->delete();
 
         return redirect()->route('admin.brands.index')->with('success', 'Xóa thương hiệu thành công!');

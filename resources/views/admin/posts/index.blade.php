@@ -1,9 +1,11 @@
 @extends('admin.layouts.admin')
-@section('title', 'Quản lý Bài Viết')
+@section('title', 'Danh sách bài viết')
 @section('content')
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h2>DANH SÁCH BÀI VIẾT</h2>
-    <a href="{{ route('admin.posts.create') }}" class="btn btn-success">+ Thêm mới</a>
+    <a href="{{ route('admin.posts.create') }}" class="btn btn-primary">
+        <i class="bi bi-plus-circle"></i> Thêm mới
+    </a>
 </div>
 
 @if(session('success'))
@@ -14,39 +16,38 @@
     <thead class="table-dark">
         <tr>
             <th>STT</th>
-            <th>Mã bài viết</th>
             <th>Hình ảnh</th>
             <th>Tiêu đề bài viết</th>
             <th>Tác giả</th>
             <th>Trạng thái</th>
-            <th class="text-center" style="width: 100px;">Chức năng</th>
+            <th>Ngày tạo</th>
+            <th class="text-center" style="width: 120px;">Chức năng</th>
         </tr>
     </thead>
     <tbody>
         @foreach($list as $index => $item)
         <tr>
             <td>{{ ($list->currentPage() - 1) * $list->perPage() + $index + 1 }}</td>
-            
-            <td>{{ $item->id }}</td>
-            
             <td>
-                <img src="{{ asset('images/' . ($item->image ?? 'default.png')) }}" alt="Image" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;">
+                <img src="{{ asset('images/posts/' . ($item->image ?? 'default.png')) }}" style="width: 60px; height: 45px; object-fit: cover; border-radius: 4px;">
             </td>
-            <td>{{ $item->title }}</td>
-            
-            <td>{{ $item->author_name ?? 'Ẩn danh' }}</td>
-            
+            <td>
+                <strong>{{ $item->title }}</strong>
+                <div class="small text-muted">{{ $item->slug }}</div>
+            </td>
+            <td>{{ $item->author_name }}</td>
             <td>
                 <span class="badge {{ $item->status == 1 ? 'bg-success' : 'bg-danger' }}">
-                    {{ $item->status == 1 ? 'Hiển thị' : 'Ẩn' }}
+                    {{ $item->status == 1 ? 'Công khai' : 'Nháp' }}
                 </span>
             </td>
+            <td>{{ date('d/m/Y H:i', strtotime($item->created_at)) }}</td>
             <td class="text-center">
-                <form action="{{ route('admin.posts.destroy', $item->id) }}" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn xóa?')">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" class="btn btn-danger btn-sm">Xóa</button>
-                </form>
+                <div class="d-flex gap-1 justify-content-center">
+                    <a href="{{ route('admin.posts.edit', $item->id) }}" class="btn btn-warning btn-sm">
+                        <i class="bi bi-pencil-square"></i>
+                    </a>
+                </div>
             </td>
         </tr>
         @endforeach

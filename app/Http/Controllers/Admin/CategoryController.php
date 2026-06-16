@@ -9,6 +9,7 @@ use Illuminate\Support\Str; // Cần thiết để dùng Str::slug
 use App\Models\Category;
 
 
+
 class CategoryController extends Controller
 {
     public function index($limit = 10)
@@ -32,19 +33,21 @@ class CategoryController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
-            'catename' => 'required|max:150',
-        ]);
+        try {
+            Category::create([
+                'catename' => $request->catename,
+                'slug'     => $request->slug ? Str::slug($request->slug) : Str::slug($request->catename),
+                'status'   => $request->status ?? 1,
+            ]);
 
-        DB::table('categories')->insert([
-            'catename'   => $request->catename,
-            'slug'       => $request->slug ?? Str::slug($request->catename),
-            'status'     => $request->status ?? 1,
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
-
-        return redirect()->route('admin.categories.index')->with('success', 'Thêm danh mục thành công!');
+            return redirect()
+                ->route('admin.categories.index')
+                ->with('success', 'Thêm danh mục thành công');
+        } catch (\Exception $e) {
+            return back()
+                ->withInput()
+                ->with('error', $e->getMessage());
+        }
     }
 
     // --- CÁC CHỨC NĂNG BỔ SUNG ---
@@ -53,13 +56,14 @@ class CategoryController extends Controller
      * Show the form for editing the specified resource.
      */
     public function edit(string $id)
-    {
-        // Lấy dữ liệu danh mục theo ID (cateid)
-        $category = DB::table('categories')->where('cateid', $id)->first();
+   {
+        // Chú ý: dùng khoá chính của bảng category, có thể là id hoặc cateid tuỳ bạn cấu hình trong Model
+        $category = Category::find($id);
 
-        // Nếu không tìm thấy thì báo lỗi 404
         if (!$category) {
-            abort(404);
+            return redirect()
+                ->route('admin.categories.index')
+                ->with('error', 'Danh mục không tồn tại!');
         }
 
         return view('admin.categories.edit', compact('category'));
@@ -69,20 +73,31 @@ class CategoryController extends Controller
      * Update the specified resource in storage.
      */
     public function update(Request $request, string $id)
-    {
-        $request->validate([
-            'catename' => 'required|max:150',
-        ]);
+   {
+        try {
+            $category = Category::find($id);
 
-        DB::table('categories')->where('cateid', $id)->update([
-            'catename'   => $request->catename,
-            'slug'       => $request->slug ?? Str::slug($request->catename),
-            'status'     => $request->status,
-            'updated_at' => now(),
-        ]);
+            if (!$category) {
+                return redirect()
+                    ->route('admin.categories.index')
+                    ->with('error', 'Danh mục không tồn tại');
+            }
 
-        return redirect()->route('admin.categories.index')->with('success', 'Cập nhật danh mục thành công!');
-    }
+            $category->update([
+                'catename' => $request->catename,
+                'slug'     => $request->slug ? Str::slug($request->slug) : Str::slug($request->catename),
+                'status'   => $request->status ?? 1,
+            ]);
+
+            return redirect()
+                ->route('admin.categories.index')
+                ->with('success', 'Cập nhật danh mục thành công');
+        } catch (\Exception $e) {
+            return back()
+                ->withInput()
+                ->with('error', $e->getMessage());
+        }
+   }
 
     /**
      * Remove the specified resource from storage.

@@ -6,6 +6,9 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use App\Models\Product;
+use App\Models\Category;
+use App\Models\Brand;
 
 class ProductController extends Controller
 {
@@ -51,27 +54,30 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'productname' => 'required|max:255',
-            'cateid' => 'required',
-            'brandid' => 'required',
-            'price' => 'required|numeric',
-        ]);
+        try {
+            // Thực hiện tạo bằng Eloquent Model
+            Product::create([
+                'productname'   => $request->productname,
+                'slug'          => $request->slug ? Str::slug($request->slug) : Str::slug($request->productname),
+                'cateid'        => $request->cateid,
+                'brandid'       => $request->brandid,
+                'price'         => $request->price,
+                'pricediscount' => $request->pricediscount ?? 0,
+                'detail'        => $request->detail ?? '', // Đồng bộ với thuộc tính trong Model Product của bạn
+                'status'        => $request->status,
+            ]);
 
-        // Thêm dữ liệu vào bảng bằng DB Table
-        DB::table('products')->insert([
-            'productname' => $request->productname,
-            'slug' => $request->slug ? Str::slug($request->slug) : Str::slug($request->productname),
-            'cateid' => $request->cateid,
-            'brandid' => $request->brandid,
-            'price' => $request->price,
-            'pricediscount' => $request->pricediscount ?? 0,
-            'status' => $request->status ?? 1,
-            'created_at' => now(), // Viết bằng DB thuần phải tự thêm thời gian
-            'updated_at' => now()
-        ]);
+            // Trường hợp thành công: Điều hướng về index kèm Session Flash 'success'
+            return redirect()
+                ->route('admin.products.index')
+                ->with('success', 'Thêm sản phẩm thành công');
 
-        return redirect()->route('admin.products.index')->with('success', 'Thêm sản phẩm thành công!');
+        } catch (\Exception $e) {
+            // Trường hợp lỗi: Quay về trang cũ, giữ lại dữ liệu đã nhập và kèm Session Flash 'error'
+            return back()
+                ->withInput()
+                ->with('error', $e->getMessage());
+        }
     }
 
     /**
@@ -86,8 +92,18 @@ class ProductController extends Controller
      * Show the form for editing the specified resource.
      */
     public function edit(string $id)
-    {
-        // Không làm chức năng sửa theo yêu cầu
+   {
+        // Thực hiện lấy sản phẩm theo id
+        $product = Product::find($id);
+
+        // Lấy danh sách loại sản phẩm, thương hiệu (chỉ lấy cột cần thiết)
+        $categories = Category::select('cateid', 'catename')->get();
+        
+        // Lưu ý: Ở đây mình dùng 'brandid' thay vì 'id' như slide để khớp với database của bạn nhé
+        $brands = Brand::select('brandid', 'brandname')->get(); 
+
+        // Gởi dữ liệu sang View
+        return view('admin.products.edit', compact('product', 'categories', 'brands'));
     }
 
     /**
@@ -95,7 +111,46 @@ class ProductController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        // Không làm chức năng sửa theo yêu cầu
+        try {
+            // Kiểm tra loại sản phẩm theo đúng yêu cầu slide
+            if (empty($request->cateid)) {
+                return back()
+                    ->withInput()
+                    ->with('error', 'Vui lòng chọn loại sản phẩm');
+            }
+
+            $product = Product::find($id);
+
+            // Kiểm tra xem sản phẩm có tồn tại không
+            if (!$product) {
+                return redirect()
+                    ->route('admin.products.index')
+                    ->with('error', 'Sản phẩm không tồn tại');
+            }
+
+            // Thực hiện cập nhật sản phẩm bằng Eloquent ORM
+            $product->update([
+                'productname'   => $request->productname,
+                'slug'          => $request->slug ? \Illuminate\Support\Str::slug($request->slug) : \Illuminate\Support\Str::slug($request->productname),
+                'cateid'        => $request->cateid,
+                'brandid'       => $request->brandid,
+                'price'         => $request->price,
+                'pricediscount' => $request->pricediscount ?? 0,
+                'status'        => $request->status,
+                'description'   => $request->description ?? '' // Đảm bảo thuộc tính này khớp với Model của bạn
+            ]);
+
+            // Chuyển về trang danh sách sau khi sửa thành công
+            return redirect()
+                ->route('admin.products.index')
+                ->with('success', 'Cập nhật sản phẩm thành công');
+
+        } catch (\Exception $e) {
+            // Bắt lỗi và trả về trang cũ kèm dữ liệu đã nhập
+            return back()
+                ->withInput()
+                ->with('error', $e->getMessage());
+        }
     }
 
     /**
