@@ -14,13 +14,21 @@ class ProductSeeder extends Seeder
      */
     public function run(): void
     {
+        $productBases = [
+            'iPhone 15 Pro Max', 'Samsung Galaxy S24 Ultra', 'MacBook Pro M3', 'Asus ROG Strix', 
+            'Tai nghe AirPods Pro', 'Apple Watch Series 9', 'Loa Marshall Emberton', 
+            'Logitech MX Master 3S', 'Keychron K2', 'Màn hình Dell UltraSharp',
+            'iPad Pro 11', 'Dell XPS 15', 'Sony WH-1000XM5', 'Xiaomi 14',
+            'Sạc dự phòng Anker'
+        ];
+
         for ($i = 1; $i <= 50; $i++) {
             
-            $productName = fake()->unique()->words(rand(2, 5), true);
-            $price = rand(100000, 50000000);
+            $productName = fake()->randomElement($productBases) . ' - Mẫu ' . $i;
+            $price = rand(500000, 40000000);
             
             DB::table('products')->insert([
-                'productname'   => ucfirst($productName),
+                'productname'   => $productName,
                 'slug'          => Str::slug($productName) . '-' . $i,
                 'price'         => $price,
                 // Ép kiểu về INT vì hàm rand() cần tham số là số nguyên nguyên bản

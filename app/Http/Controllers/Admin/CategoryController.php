@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str; // Cần thiết để dùng Str::slug
+use Illuminate\Support\Str;
 use App\Models\Category;
 
 
@@ -14,11 +14,7 @@ class CategoryController extends Controller
 {
     public function index($limit = 10)
     {
-        // $list = DB::table('categories')
-        //     ->select('cateid', 'catename', 'slug', 'image', 'status')
-        //     ->orderBy('cateid', 'desc') // Đổi sang desc để cái mới lên đầu
-        //     ->get();
-
+    
         $list = Category::select('cateid', 'catename', 'slug', 'image', 'status')
             ->orderBy('catename')
             ->paginate($limit);
@@ -33,11 +29,29 @@ class CategoryController extends Controller
 
     public function store(Request $request)
     {
+        $request->validate([
+            'catename' => 'required|min:3|max:100|unique:categories,catename',
+            'slug'     => 'nullable|string|min:5|max:150|unique:categories,slug|regex:/^[a-z0-9-]+$/',
+            'status'   => 'required|in:0,1',
+        ], [
+            'catename.required' => 'Tên loại không được để trống.',
+            'catename.min'      => 'Tên loại phải từ 3 ký tự trở lên.',
+            'catename.max'      => 'Tên loại sản phẩm không được vượt quá 100 ký tự.',
+            'catename.unique'   => 'Tên loại sản phẩm này đã tồn tại.',
+            'slug.min'          => 'Đường dẫn (Slug) phải từ 5 ký tự trở lên.',
+            'slug.max'          => 'Slug không được vượt quá 150 ký tự.',
+            'slug.unique'       => 'Slug này đã tồn tại, vui lòng chọn slug khác.',
+            'slug.regex'        => 'Slug chỉ được chứa chữ thường, số và dấu gạch ngang (-).',
+            'status.required'   => 'Trạng thái không được để trống.',
+            'status.in'         => 'Trạng thái không hợp lệ.',
+        ]);
+
         try {
             Category::create([
-                'catename' => $request->catename,
-                'slug'     => $request->slug ? Str::slug($request->slug) : Str::slug($request->catename),
-                'status'   => $request->status ?? 1,
+                'catename'    => $request->catename,
+                'slug'        => $request->slug ? Str::slug($request->slug) : Str::slug($request->catename),
+                'status'      => $request->status ?? 1,
+                'description' => $request->description,
             ]);
 
             return redirect()
@@ -50,14 +64,10 @@ class CategoryController extends Controller
         }
     }
 
-    // --- CÁC CHỨC NĂNG BỔ SUNG ---
 
-    /**
-     * Show the form for editing the specified resource.
-     */
+  
     public function edit(string $id)
    {
-        // Chú ý: dùng khoá chính của bảng category, có thể là id hoặc cateid tuỳ bạn cấu hình trong Model
         $category = Category::find($id);
 
         if (!$category) {
@@ -74,6 +84,25 @@ class CategoryController extends Controller
      */
     public function update(Request $request, string $id)
    {
+        $request->validate([
+            'catename' => 'required|min:3|max:100|unique:categories,catename,' . $id . ',cateid',
+            'slug'     => 'nullable|string|min:5|max:150|
+            unique:categories,slug,' . $id .
+             ',cateid|regex:/^[a-z0-9-]+$/',
+            'status'   => 'required|in:0,1',
+        ], [
+            'catename.required' => 'Tên loại không được để trống.',
+            'catename.min'      => 'Tên loại phải từ 3 ký tự trở lên.',
+            'catename.max'      => 'Tên loại sản phẩm không được vượt quá 100 ký tự.',
+            'catename.unique'   => 'Tên loại sản phẩm này đã tồn tại.',
+            'slug.min'          => 'Đường dẫn (Slug) phải từ 5 ký tự trở lên.',
+            'slug.max'          => 'Slug không được vượt quá 150 ký tự.',
+            'slug.unique'       => 'Slug này đã tồn tại, vui lòng chọn slug khác.',
+            'slug.regex'        => 'Slug chỉ được chứa chữ thường, số và dấu gạch ngang (-).',
+            'status.required'   => 'Trạng thái không được để trống.',
+            'status.in'         => 'Trạng thái không hợp lệ.',
+        ]);
+
         try {
             $category = Category::find($id);
 
@@ -83,11 +112,14 @@ class CategoryController extends Controller
                     ->with('error', 'Danh mục không tồn tại');
             }
 
-            $category->update([
-                'catename' => $request->catename,
-                'slug'     => $request->slug ? Str::slug($request->slug) : Str::slug($request->catename),
-                'status'   => $request->status ?? 1,
-            ]);
+            $data = [
+                'catename'    => $request->catename,
+                'slug'        => $request->slug ? Str::slug($request->slug) : Str::slug($request->catename),
+                'status'      => $request->status ?? 1,
+                'description' => $request->description,
+            ];
+
+            $category->update($data);
 
             return redirect()
                 ->route('admin.categories.index')

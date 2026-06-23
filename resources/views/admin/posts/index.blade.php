@@ -29,7 +29,12 @@
         <tr>
             <td>{{ ($list->currentPage() - 1) * $list->perPage() + $index + 1 }}</td>
             <td>
-                <img src="{{ asset('images/posts/' . ($item->image ?? 'default.png')) }}" style="width: 60px; height: 45px; object-fit: cover; border-radius: 4px;">
+                @php
+                    $imageUrl = ($item->image && file_exists(public_path('images/' . $item->image)))
+                        ? asset('images/' . $item->image)
+                        : asset('images/1.jpg');
+                @endphp
+                <img src="{{ $imageUrl }}" alt="Image" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;">
             </td>
             <td>
                 <strong>{{ $item->title }}</strong>

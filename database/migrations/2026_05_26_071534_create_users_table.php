@@ -16,7 +16,7 @@ return new class extends Migration
         $table->string('fullname', 100); // VARCHAR(100)
         $table->string('username', 30)->unique(); // VARCHAR(30), UNIQUE
         $table->string('email', 50)->unique(); // VARCHAR(50), UNIQUE
-        $table->string('password', 50); // VARCHAR(50) - Lưu ý: trong thực tế nên tăng độ dài để mã hóa bcrypt, nhưng ở đây làm sát theo thiết kế Lab của bạn.
+        $table->string('password', 255); // VARCHAR(255) - Đã tăng độ dài để hỗ trợ mã hóa Bcrypt an toàn của Laravel.
         $table->string('phone', 20)->unique(); // VARCHAR(20), UNIQUE
         $table->string('address', 255)->nullable(); // VARCHAR(255), NULL
         $table->tinyInteger('gender'); // tinyInteger (1: Nam, 2: Nữ, 0: Không cung cấp)

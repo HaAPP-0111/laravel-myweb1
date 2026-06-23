@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Http\Requests\Admin\UserRequest;
 use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
@@ -34,21 +34,13 @@ class UserController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(UserRequest $request)
     {
-        // $request->validate([
-        //     'username' => 'required|max:255|unique:users,username',
-        //     'fullname' => 'required|max:255',
-        //     'email'    => 'required|email|unique:users,email',
-        //     'password' => 'required|min:6',
-        //     'phone'    => 'required',
-        // ]);
-
         DB::table('users')->insert([
             'username'   => $request->username,
             'fullname'   => $request->fullname,
             'email'      => $request->email,
-            'password'   => md5($request->password),
+            'password'   => Hash::make($request->password),
             'phone'      => $request->phone,
             'gender'     => $request->gender ?? 1,
             'role'       => $request->role ?? 0,
@@ -58,6 +50,46 @@ class UserController extends Controller
         ]);
 
         return redirect()->route('admin.users.index')->with('success', 'Thêm thành viên thành công!');
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit(string $id)
+    {
+        $user = DB::table('users')->where('id', $id)->first();
+        
+        if (!$user) {
+            return redirect()->route('admin.users.index')->with('error', 'Thành viên không tồn tại!');
+        }
+        
+        return view('admin.users.edit', compact('user'));
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(UserRequest $request, string $id)
+    {
+        $data = [
+            'username'   => $request->username,
+            'fullname'   => $request->fullname,
+            'email'      => $request->email,
+            'phone'      => $request->phone,
+            'gender'     => $request->gender ?? 1,
+            'role'       => $request->role ?? 0,
+            'status'     => $request->status ?? 1,
+            'updated_at' => now(),
+        ];
+
+        // Cập nhật mật khẩu nếu người dùng có nhập mật khẩu mới
+        if ($request->filled('password')) {
+            $data['password'] = Hash::make($request->password);
+        }
+
+        DB::table('users')->where('id', $id)->update($data);
+
+        return redirect()->route('admin.users.index')->with('success', 'Cập nhật thành viên thành công!');
     }
 
     /**

@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Models\Brand; // BẮT BUỘC: Import Model Brand để không bị lỗi không tìm thấy Class
-use Illuminate\Support\Str; // Import để xử lý tạo tự động chuỗi slug từ tên thương hiệu
+use App\Http\Requests\Admin\BrandRequest;
+use App\Models\Brand;
+use Illuminate\Support\Str;
 
 class BrandController extends Controller
 {
@@ -32,13 +32,14 @@ class BrandController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(BrandRequest $request)
     {
         try {
             Brand::create([
                 'brandname' => $request->brandname,
                 'slug'      => $request->slug ? Str::slug($request->slug) : Str::slug($request->brandname),
                 'status'    => $request->status ?? 1,
+                'image'     => $request->image,
             ]);
 
             return redirect()
@@ -79,7 +80,7 @@ class BrandController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(BrandRequest $request, string $id)
     {
         try {
             // THAY ĐỔI: Sử dụng where() tìm theo brandid thay vì find() tìm theo id mặc định
@@ -91,11 +92,14 @@ class BrandController extends Controller
                     ->with('error', 'Thương hiệu không tồn tại');
             }
 
-            $brand->update([
+            $data = [
                 'brandname' => $request->brandname,
                 'slug'      => $request->slug ? Str::slug($request->slug) : Str::slug($request->brandname),
                 'status'    => $request->status ?? 1,
-            ]);
+                'image'     => $request->image,
+            ];
+
+            $brand->update($data);
 
             return redirect()
                 ->route('admin.brands.index')

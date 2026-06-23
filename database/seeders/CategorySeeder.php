@@ -14,16 +14,28 @@ class CategorySeeder extends Seeder
      */
     public function run(): void
     {
-        for ($i = 1; $i <= 10; $i++) {
+        $categories = [
+            'Điện thoại di động',
+            'Laptop & Máy tính xách tay',
+            'Máy tính bảng (Tablet)',
+            'Đồng hồ thông minh',
+            'Tai nghe Bluetooth',
+            'Loa di động & Âm thanh',
+            'Phụ kiện máy tính',
+            'Thiết bị mạng',
+            'Camera an ninh',
+            'Pin sạc dự phòng',
+            'Màn hình máy tính',
+            'Bàn phím & Chuột'
+        ];
 
-            $name = fake()->unique()->words(3, true);
-
+        foreach ($categories as $index => $name) {
             DB::table('categories')->insert([
-                'catename' => ucfirst($name),
+                'catename' => $name,
                 'slug' => Str::slug($name),
                 'status' => fake()->numberBetween(0, 1),
-                'sort_order' => $i,
-                'description' => fake()->sentence(30),
+                'sort_order' => $index + 1,
+                'description' => 'Chuyên cung cấp các sản phẩm ' . $name . ' chính hãng, chất lượng cao.',
                 'created_at' => now(),
                 'updated_at' => now()
             ]);

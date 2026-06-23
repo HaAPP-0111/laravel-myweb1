@@ -11,12 +11,12 @@ class Post extends Model
 
     protected $table = 'posts'; 
 
-    // Đồng bộ chuẩn các cột trong database
+    
     protected $fillable = [
         'title',
         'slug',
         'image',
-        'content', // Thay đổi tại đây
+        'content',
         'status',
         'user_id'
     ];

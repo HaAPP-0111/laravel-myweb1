@@ -17,6 +17,7 @@
         <tr>
             <th>STT</th>
             <th>Mã thương hiệu</th>
+            <th>Hình ảnh</th>
             <th>Tên thương hiệu</th>
             <th>Slug</th>
             <th>Trạng thái</th>
@@ -28,11 +29,19 @@
         <tr>
             <td>{{ ($list->currentPage() - 1) * $list->perPage() + $index + 1 }}</td>
             <td>{{ $item->brandid }}</td>
+            <td>
+                @php
+                    $imageUrl = ($item->image && file_exists(public_path('images/' . $item->image)))
+                        ? asset('images/' . $item->image)
+                        : asset('images/1.jpg');
+                @endphp
+                <img src="{{ $imageUrl }}" alt="Image" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;">
+            </td>
             <td>{{ $item->brandname }}</td>
             <td>{{ $item->slug }}</td>
             <td>
                 <span class="badge {{ $item->status == 1 ? 'bg-success' : 'bg-danger' }}">
-                    {{ $item->status == 1 ? 'Hiển thị' : 'Ẩn' }}
+                    {{ $item->status == 1 ? 'Hiện' : 'Ẩn' }}
                 </span>
             </td>
             <td class="text-center">

@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Http\Requests\Admin\PostRequest;
 use Illuminate\Support\Str;
 use App\Models\Post; 
 
@@ -34,23 +34,16 @@ class PostController extends Controller
         return view('admin.posts.create');
     }
 
-    public function store(Request $request)
+    public function store(PostRequest $request)
     {
         try {
-            // Xử lý Upload Ảnh đại diện bài viết nếu có
-            $imageName = null;
-            if ($request->hasFile('image')) {
-                $imageName = time() . '_' . $request->image->getClientOriginalName();
-                $request->image->move(public_path('uploads/posts'), $imageName);
-            }
-
             Post::create([
                 'title'   => $request->title,
                 'slug'    => $request->slug ? Str::slug($request->slug) : Str::slug($request->title),
-                'content' => $request->content ?? '', // ĐỒNG BỘ: Sử dụng cột content thay vì detail
-                'image'   => $imageName,             // ĐỒNG BỘ: Lưu tên file ảnh vào DB
+                'content' => $request->content ?? '',
+                'image'   => $request->image,
                 'status'  => $request->status ?? 1,
-                'user_id' => auth()->id() ?? 1 
+                'user_id' => auth()->id() ?? 1
             ]);
 
             return redirect()
@@ -76,7 +69,7 @@ class PostController extends Controller
         return view('admin.posts.edit', compact('post'));
     }
 
-    public function update(Request $request, string $id)
+    public function update(PostRequest $request, string $id)
     {
         try {
             $post = Post::find($id);
@@ -87,20 +80,13 @@ class PostController extends Controller
                     ->with('error', 'Bài viết không tồn tại');
             }
 
-            // Chuẩn bị mảng dữ liệu update cơ bản
             $data = [
                 'title'   => $request->title,
                 'slug'    => $request->slug ? Str::slug($request->slug) : Str::slug($request->title),
-                'content' => $request->content ?? '', // ĐỒNG BỘ: Sử dụng cột content
+                'content' => $request->content ?? '',
                 'status'  => $request->status ?? 1,
+                'image'   => $request->image,
             ];
-
-            // Nếu người dùng có chọn file ảnh mới thì xử lý upload và ghi đè ảnh cũ
-            if ($request->hasFile('image')) {
-                $imageName = time() . '_' . $request->image->getClientOriginalName();
-                $request->image->move(public_path('uploads/posts'), $imageName);
-                $data['image'] = $imageName;
-            }
 
             $post->update($data);
 
@@ -117,7 +103,13 @@ class PostController extends Controller
 
     public function destroy(string $id)
     {
-        DB::table('posts')->where('id', $id)->delete();
+        $post = Post::find($id);
+        if ($post) {
+            if ($post->image && file_exists(public_path('uploads/posts/' . $post->image))) {
+                unlink(public_path('uploads/posts/' . $post->image));
+            }
+            $post->delete();
+        }
         return redirect()->route('admin.posts.index')->with('success', 'Xóa bài viết thành công!');
     }
 }

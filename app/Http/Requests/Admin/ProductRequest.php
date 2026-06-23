@@ -1,0 +1,75 @@
+<?php
+
+namespace App\Http\Requests\Admin;
+
+use Illuminate\Foundation\Http\FormRequest;
+
+class ProductRequest extends FormRequest
+{
+    public function authorize(): bool
+    {
+        return true;
+    }
+
+    public function rules(): array
+    {
+        $productId = $this->route('product');
+
+        return [
+            'productname'   => ['required', 'min:3', 'max:200', 'unique:products,productname,' . $productId],
+            'price'         => ['required', 'numeric', 'min:0', 'max:9999999'],
+            'pricediscount' => ['required', 'numeric', 'min:0', 'lte:price'],
+            'cateid'        => ['required', 'exists:categories,cateid'],
+            'brandid'       => ['nullable', 'exists:brands,brandid'],
+            'description'   => ['nullable', 'regex:/^[^@!$\^]*$/'],
+            'status'        => ['required', 'in:0,1'],
+            'image'         => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,webp', 'max:2048'],
+            'slug'          => ['nullable', 'string', 'min:5', 'max:150', 'unique:products,slug,' . $productId, 'regex:/^[a-z0-9-]+$/'],
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'productname.required'   => 'Tên sản phẩm không được bỏ trống.',
+            'productname.min'        => 'Tên sản phẩm phải có ít nhất 3 ký tự.',
+            'productname.max'        => 'Tên sản phẩm không được vượt quá 200 ký tự.',
+            'productname.unique'     => 'Tên sản phẩm này đã tồn tại trong hệ thống.',
+            'price.required'         => 'Giá gốc không được bỏ trống.',
+            'price.numeric'          => 'Giá gốc phải là số.',
+            'price.min'              => 'Giá gốc không được nhỏ hơn 0.',
+            'price.max'              => 'Giá gốc không được vượt quá 9.999.999 đ.',
+            'pricediscount.required' => 'Giá khuyến mãi không được bỏ trống.',
+            'pricediscount.numeric'  => 'Giá khuyến mãi phải là số.',
+            'pricediscount.min'      => 'Giá khuyến mãi không được nhỏ hơn 0.',
+            'pricediscount.lte'      => 'Giá khuyến mãi không được lớn hơn giá gốc.',
+            'cateid.required'        => 'Vui lòng chọn danh mục.',
+            'cateid.exists'          => 'Danh mục không hợp lệ.',
+            'brandid.exists'         => 'Thương hiệu không hợp lệ.',
+            'description.regex'      => 'Mô tả không được chứa các ký tự đặc biệt (@, !, $, ^).',
+            'status.required'        => 'Vui lòng chọn trạng thái.',
+            'status.in'              => 'Trạng thái không hợp lệ.',
+            'image.image'            => 'File tải lên phải là hình ảnh.',
+            'image.mimes'            => 'Hình ảnh chỉ chấp nhận định dạng: jpeg, png, jpg, gif, webp.',
+            'image.max'              => 'Hình ảnh không được vượt quá 2MB.',
+            'slug.min'               => 'Đường dẫn (Slug) phải từ 5 ký tự trở lên.',
+            'slug.max'               => 'Slug không được vượt quá 150 ký tự.',
+            'slug.unique'            => 'Slug này đã tồn tại, vui lòng chọn slug khác.',
+            'slug.regex'             => 'Slug chỉ được chứa chữ thường, số và dấu gạch ngang (-).',
+        ];
+    }
+
+    public function attributes(): array
+    {
+        return [
+            'productname'   => 'Tên sản phẩm',
+            'price'         => 'Giá gốc',
+            'pricediscount' => 'Giá khuyến mãi',
+            'cateid'        => 'Danh mục',
+            'brandid'       => 'Thương hiệu',
+            'description'   => 'Mô tả',
+            'status'        => 'Trạng thái',
+            'image'         => 'Hình ảnh',
+        ];
+    }
+}
