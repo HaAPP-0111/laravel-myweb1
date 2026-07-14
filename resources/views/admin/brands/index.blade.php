@@ -8,9 +8,7 @@
     </a>
 </div>
 
-@if(session('success'))
-    <div class="alert alert-success">{{ session('success') }}</div>
-@endif
+<x-admin.alert />
 
 <table class="table table-bordered table-hover table-striped align-middle">
     <thead class="table-dark">
@@ -31,8 +29,8 @@
             <td>{{ $item->brandid }}</td>
             <td>
                 @php
-                    $imageUrl = ($item->image && file_exists(public_path('images/' . $item->image)))
-                        ? asset('images/' . $item->image)
+                    $imageUrl = $item->image 
+                        ? asset('storage/brands/' . $item->image)
                         : asset('images/1.jpg');
                 @endphp
                 <img src="{{ $imageUrl }}" alt="Image" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;">
@@ -49,6 +47,13 @@
                     <a href="{{ route('admin.brands.edit', $item->brandid) }}" class="btn btn-warning btn-sm">
                         <i class="bi bi-pencil-square"></i>
                     </a>
+                    <form action="{{ route('admin.brands.destroy', $item->brandid) }}" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn xóa thương hiệu này?')">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-danger btn-sm">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </form>
                 </div>
             </td>
         </tr>

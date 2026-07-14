@@ -4,23 +4,9 @@
 <div class="card p-4 shadow-sm" style="max-width: 900px; margin: 0 auto;">
     <h3 class="mb-4">Sửa loại sản phẩm</h3>
 
-    {{-- Hiện thị tất cả lỗi Validation --}}
-    @if($errors->any())
-        <div class="alert alert-danger" style="background-color: #f8d7da; border-color: #f5c6cb; color: #721c24;">
-            <ul class="mb-0">
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
+    <x-admin.alert />
 
-    {{-- Hiện thị lỗi từ session flash --}}
-    @if(session('error'))
-        <div class="alert alert-danger">{{ session('error') }}</div>
-    @endif
-
-    <form action="{{ route('admin.categories.update', $category->cateid) }}" method="POST">
+    <form action="{{ route('admin.categories.update', $category->cateid) }}" method="POST" enctype="multipart/form-data">
         @csrf
         @method('PUT')
         
@@ -37,6 +23,18 @@
                     <label class="form-label">Slug</label>
                     <input type="text" name="slug" class="form-control" value="{{ old('slug', $category->slug) }}">
                     @error('slug')
+                        <span class="text-danger">{{ $message }}</span>
+                    @enderror
+                </div>
+                <div class="mb-3 img-group">
+                    <label class="form-label fw-bold">Hình ảnh</label>
+                    <input type="file" name="img" class="form-control img-input">
+                    <div class="img-preview mt-2">
+                        @if ($category->image)
+                            <img src="{{ asset('storage/categories/' . $category->image) }}" class="img-thumbnail" width="150">
+                        @endif
+                    </div>
+                    @error('img')
                         <span class="text-danger">{{ $message }}</span>
                     @enderror
                 </div>

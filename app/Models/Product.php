@@ -29,4 +29,14 @@ class Product extends Model
     {
         return $this->belongsTo(Category::class, 'cateid', 'cateid');
     }
+
+    public function brand()
+    {
+        return $this->belongsTo(Brand::class, 'brandid', 'brandid');
+    }
+
+    public function images()
+    {
+        return $this->hasMany(ProductImage::class, 'product_id', 'id');
+    }
 }

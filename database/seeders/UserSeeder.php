@@ -10,6 +10,36 @@ class UserSeeder extends Seeder
 {
     public function run(): void
     {
+        DB::table('users')->insert([
+            'fullname'   => 'Admin DZ',
+            'username'   => 'admin',
+            'email'      => 'admin@gmail.com',
+            'password'   => Hash::make('123456'), // Mật khẩu là 123456
+            'phone'      => '0987654321',
+            'address'    => 'Hà Nội',
+            'gender'     => 1,
+            'birthday'   => '2000-01-01',
+            'role'       => 1,
+            'status'     => 1,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        DB::table('users')->insert([
+            'fullname'   => 'Nhân viên test',
+            'username'   => 'staff',
+            'email'      => 'test.666.908@gmail.com', // Dùng để test quên mật khẩu gửi mail
+            'password'   => Hash::make('123456'), // Mật khẩu là 123456
+            'phone'      => '0987654322',
+            'address'    => 'Hà Nội',
+            'gender'     => 2,
+            'birthday'   => '2000-01-01',
+            'role'       => 2, // Nhân viên (User)
+            'status'     => 1,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
         for ($i = 1; $i <= 10; $i++) {
             DB::table('users')->insert([
                 'fullname'   => fake()->name(),

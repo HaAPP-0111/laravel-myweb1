@@ -62,7 +62,7 @@ class LostConnectionDetector implements LostConnectionDetectorContract
             'TCP Provider: Error code 0x274C',
             'SQLSTATE[HY000] [2002] No such file or directory',
             'SSL: Operation timed out',
-            'Reason: Server is in script upgrade mode. Only administrator can connect at this time.',
+            'Reason: Server is in script upgrade mode. Onlyistrator can connect at this time.',
             'Unknown $curl_error_code: 77',
             'SSL: Handshake timed out',
             'SSL error: sslv3 alert unexpected message',

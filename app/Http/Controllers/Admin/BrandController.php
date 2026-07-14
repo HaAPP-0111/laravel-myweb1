@@ -35,20 +35,31 @@ class BrandController extends Controller
     public function store(BrandRequest $request)
     {
         try {
+            $fileName = null;
+            if ($request->hasFile('img')) {
+                $file = $request->file('img');
+                $fileName = Str::slug($request->brandname)
+                          . '-' . time()
+                          . '.' . $file->extension();
+                $file->storeAs('brands', $fileName, 'public');
+            }
+
             Brand::create([
-                'brandname' => $request->brandname,
-                'slug'      => $request->slug ? Str::slug($request->slug) : Str::slug($request->brandname),
-                'status'    => $request->status ?? 1,
-                'image'     => $request->image,
+                'brandname'   => $request->brandname,
+                'slug'        => $request->slug ? Str::slug($request->slug) : Str::slug($request->brandname),
+                'status'      => $request->status ?? 1,
+                'description' => $request->description,
+                'image'       => $fileName,
             ]);
 
             return redirect()
                 ->route('admin.brands.index')
-                ->with('success', 'Thêm thương hiệu thành công');
+                ->with('success', 'Thêm thương hiệu thành công.');
         } catch (\Exception $e) {
-            return back()
+            return redirect()
+                ->back()
                 ->withInput()
-                ->with('error', $e->getMessage());
+                ->with('error', 'Thêm thương hiệu thất bại: ' . $e->getMessage());
         }
     }
 
@@ -83,7 +94,6 @@ class BrandController extends Controller
     public function update(BrandRequest $request, string $id)
     {
         try {
-            // THAY ĐỔI: Sử dụng where() tìm theo brandid thay vì find() tìm theo id mặc định
             $brand = Brand::where('brandid', $id)->first();
 
             if (!$brand) {
@@ -92,22 +102,34 @@ class BrandController extends Controller
                     ->with('error', 'Thương hiệu không tồn tại');
             }
 
-            $data = [
-                'brandname' => $request->brandname,
-                'slug'      => $request->slug ? Str::slug($request->slug) : Str::slug($request->brandname),
-                'status'    => $request->status ?? 1,
-                'image'     => $request->image,
-            ];
+            $fileName = $brand->image;
+            if ($request->hasFile('img')) {
+                if ($fileName) {
+                    \Illuminate\Support\Facades\Storage::disk('public')->delete('brands/' . $fileName);
+                }
+                $file = $request->file('img');
+                $fileName = Str::slug($request->brandname)
+                          . '-' . time()
+                          . '.' . $file->extension();
+                $file->storeAs('brands', $fileName, 'public');
+            }
 
-            $brand->update($data);
+            $brand->update([
+                'brandname'   => $request->brandname,
+                'slug'        => $request->slug ? Str::slug($request->slug) : Str::slug($request->brandname),
+                'status'      => $request->status ?? 1,
+                'description' => $request->description,
+                'image'       => $fileName,
+            ]);
 
             return redirect()
                 ->route('admin.brands.index')
-                ->with('success', 'Cập nhật thương hiệu thành công');
+                ->with('success', 'Cập nhật thương hiệu thành công.');
         } catch (\Exception $e) {
-            return back()
+            return redirect()
+                ->back()
                 ->withInput()
-                ->with('error', $e->getMessage());
+                ->with('error', 'Cập nhật thương hiệu thất bại: ' . $e->getMessage());
         }
     }
 
@@ -116,8 +138,10 @@ class BrandController extends Controller
      */
     public function destroy(string $id)
     {
-        // THAY ĐỔI: Sử dụng cấu trúc tìm và xóa chính xác theo khóa chính brandid
         $brand = Brand::where('brandid', $id)->firstOrFail();
+        if ($brand->image) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete('brands/' . $brand->image);
+        }
         $brand->delete();
 
         return redirect()->route('admin.brands.index')->with('success', 'Xóa thương hiệu thành công!');

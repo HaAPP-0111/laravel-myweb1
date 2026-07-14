@@ -3,14 +3,17 @@
 @section('content')
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h2>DANH SÁCH DANH MỤC</h2>
-    <a href="{{ route('admin.categories.create') }}" class="btn btn-primary">
-        <i class="bi bi-plus-circle"></i> Thêm mới
-    </a>
+    <div class="d-flex gap-2">
+        <a href="{{ route('admin.categories.create') }}" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Thêm mới
+        </a>
+        <a href="{{ route('admin.categories.trash') }}" class="btn btn-danger">
+            <i class="bi bi-trash"></i> Thùng rác
+        </a>
+    </div>
 </div>
 
-@if(session('success'))
-    <div class="alert alert-success">{{ session('success') }}</div>
-@endif
+<x-admin.alert />
 
 <table class="table table-bordered table-hover table-striped align-middle">
     <thead class="table-dark">
@@ -31,8 +34,8 @@
             <td>{{ $item->cateid }}</td>
             <td>
                 @php
-                    $imageUrl = ($item->image && file_exists(public_path('images/' . $item->image)))
-                        ? asset('images/' . $item->image)
+                    $imageUrl = $item->image 
+                        ? asset('storage/categories/' . $item->image)
                         : asset('images/1.jpg');
                 @endphp
                 <img src="{{ $imageUrl }}" alt="Image" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;">
@@ -49,6 +52,13 @@
                     <a href="{{ route('admin.categories.edit', $item->cateid) }}" class="btn btn-warning btn-sm">
                         <i class="bi bi-pencil-square"></i>
                     </a>
+                    <form action="{{ route('admin.categories.destroy', $item->cateid) }}" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn xóa danh mục này?')">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-danger btn-sm">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </form>
                 </div>
             </td>
         </tr>

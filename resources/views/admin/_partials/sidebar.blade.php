@@ -8,7 +8,7 @@
     <ul class="nav flex-column">
 
         <li class="nav-item mb-2">
-            <a class="nav-link text-white" href="{{ route('admin.home') }}">
+            <a class="nav-link text-white" href="{{ route('admin.dashboard') }}">
                 <i class="bi bi-house-door"></i>
                 Dashboard
             </a>

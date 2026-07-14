@@ -7,6 +7,8 @@ use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\PostController;
 use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\AuthController;
+use App\Http\Controllers\Admin\DashboardController;
 
 // --- Giao diện người dùng công khai ---
 Route::get('/', function () {
@@ -29,16 +31,40 @@ Route::get('/test2', [ProductController::class, 'test2']);
 // Gom tất cả vào prefix 'admin' và đặt tên chung là 'admin.' để đồng bộ với View
 Route::prefix('admin')->name('admin.')->group(function () {
     
-    // Trang chủ Admin (Dashboard)
-    Route::get('/dashboard', function () {
-        return view('admin.dashboard');
-    })->name('home');
+    // Tự động chuyển hướng từ /admin sang /admin/dashboard
+    Route::get('/', function () {
+        return redirect()->route('admin.dashboard');
+    });
 
-    // Các Route Resource (Đầy đủ chức năng hiển thị danh sách, thêm, xóa cho cả 5 phần)
-    Route::resource('categories', CategoryController::class);
-    Route::resource('brands', BrandController::class);
-    Route::resource('users', UserController::class);
-    Route::resource('products', ProductController::class);
-    Route::resource('posts', PostController::class);
-    
+    // Authentication Routes
+    Route::get('/login', [AuthController::class, 'login'])->name('login');
+    Route::post('/login', [AuthController::class, 'postLogin'])->name('login.post');
+    Route::get('/forgotpass', [AuthController::class, 'forgotPassword'])->name('forgotpass');
+    Route::post('/forgotpass', [AuthController::class, 'postForgotpassword'])->name('forgotpass.post');
+
+    // Protected Admin Routes (Yêu cầu đăng nhập)
+    Route::middleware('auth')->group(function () {
+        Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+        Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+        // CRUD - Resource route
+        Route::middleware('roles:1')->group(function () {
+            // Hiển thị danh sách dữ liệu đã xóa mềm Soft Delete (Thùng rác)
+            Route::get('trash/categories', [CategoryController::class, 'trash'])->name('categories.trash');
+            // Khôi phục
+            Route::patch('categories/{id}/restore', [CategoryController::class, 'restore'])->name('categories.restore');
+            // Xóa vĩnh viễn
+            Route::delete('categories/{id}/forcedelete', [CategoryController::class, 'forceDelete'])->name('categories.forceDelete');
+
+            Route::resource('categories', CategoryController::class);
+            Route::resource('brands', BrandController::class);
+            Route::resource('users', UserController::class);
+            Route::resource('products', ProductController::class)->except(['index']);
+            Route::delete('products/images/{id}', [ProductController::class, 'deleteImage'])->name('products.images.delete');
+            Route::resource('posts', PostController::class);
+        });
+
+        // Cả Admin (role 1) và Nhân viên (role 2) đều xem được danh sách sản phẩm
+        Route::resource('products', ProductController::class)->only(['index'])->middleware('roles:1,2');
+    });
 });

@@ -4,20 +4,7 @@
 <div class="card p-4 shadow-sm" style="max-width: 600px; margin: 0 auto;">
     <h3 class="mb-4 text-warning fw-bold">SỬA THƯƠNG HIỆU</h3>
 
-    {{-- Hiện thị tất cả lỗi Validation --}}
-    @if($errors->any())
-        <div class="alert alert-danger">
-            <ul>
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
-
-    @if(session('error'))
-        <div class="alert alert-danger">{{ session('error') }}</div>
-    @endif
+    <x-admin.alert />
 
     <form action="{{ route('admin.brands.update', $brand->brandid) }}" method="POST" enctype="multipart/form-data">
         @csrf
@@ -33,6 +20,27 @@
             <label class="form-label fw-bold">Slug</label>
             <input type="text" name="slug" class="form-control" value="{{ old('slug', $brand->slug) }}">
             @error('slug')
+                <span class="text-danger">{{ $message }}</span>
+            @enderror
+        </div>
+
+        <div class="mb-3 img-group">
+            <label class="form-label fw-bold">Hình ảnh</label>
+            <input type="file" name="img" class="form-control img-input">
+            <div class="img-preview mt-2">
+                @if ($brand->image)
+                    <img src="{{ asset('storage/brands/' . $brand->image) }}" class="img-thumbnail" width="150">
+                @endif
+            </div>
+            @error('img')
+                <span class="text-danger">{{ $message }}</span>
+            @enderror
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label fw-bold">Mô tả thương hiệu</label>
+            <textarea name="description" class="form-control" rows="3">{{ old('description', $brand->description) }}</textarea>
+            @error('description')
                 <span class="text-danger">{{ $message }}</span>
             @enderror
         </div>

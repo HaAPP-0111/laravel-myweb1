@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Admin;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class BrandRequest extends FormRequest
 {
@@ -13,29 +14,44 @@ class BrandRequest extends FormRequest
 
     public function rules(): array
     {
-        $brandid = $this->route('brand'); // lấy id từ route khi update
+        $id = $this->route('brand');
 
         return [
-            'brandname' => ['required', 'min:2', 'max:150', 'unique:brands,brandname,' . $brandid . ',brandid'],
-            'slug'      => ['required', 'string', 'min:5', 'max:150', 'unique:brands,slug,' . $brandid . ',brandid', 'regex:/^[a-z0-9-]+$/'],
-            'status'    => ['required', 'in:0,1'],
+            'brandname' => [
+                'required',
+                'min:3',
+                'max:100',
+                Rule::unique('brands', 'brandname')->ignore($id, 'brandid'),
+            ],
+            'slug' => [
+                'required',
+                'min:3',
+                'max:150',
+                Rule::unique('brands', 'slug')->ignore($id, 'brandid'),
+                'regex:/^[a-z0-9-]+$/',
+            ],
+            'img' => [
+                'nullable',
+                'image',
+                'mimes:jpg,jpeg,png,webp',
+                'max:200',
+            ],
+            'status' => 'required|in:0,1',
         ];
     }
 
     public function messages(): array
     {
         return [
-            'brandname.required' => 'Tên thương hiệu không được bỏ trống.',
-            'brandname.min'      => 'Tên thương hiệu phải có ít nhất 2 ký tự.',
-            'brandname.max'      => 'Tên thương hiệu không được vượt quá 150 ký tự.',
-            'brandname.unique'   => 'Tên thương hiệu này đã tồn tại trong hệ thống.',
-            'slug.required'      => 'Slug không được bỏ trống.',
-            'slug.min'           => 'Đường dẫn (Slug) phải từ 5 ký tự trở lên.',
-            'slug.max'           => 'Slug không được vượt quá 150 ký tự.',
-            'slug.unique'        => 'Slug này đã tồn tại, vui lòng chọn slug khác.',
-            'slug.regex'         => 'Slug chỉ được chứa chữ thường, số và dấu gạch ngang (-).',
-            'status.required'    => 'Vui lòng chọn trạng thái.',
-            'status.in'          => 'Trạng thái không hợp lệ.',
+            'required' => ':attribute không được để trống.',
+            'min' => ':attribute phải từ :min ký tự trở lên.',
+            'max' => ':attribute không vượt quá :max KB hoặc ký tự.',
+            'unique' => ':attribute đã tồn tại.',
+            'slug.regex' => ':attribute chỉ được chứa chữ thường, số và dấu gạch ngang (-).',
+            'status.in' => ':attribute không hợp lệ.',
+            'img.image' => ':attribute phải là hình ảnh.',
+            'img.mimes' => ':attribute chỉ chấp nhận các định dạng: jpg, jpeg, png, webp.',
+            'img.max' => ':attribute không được vượt quá 200 KB.',
         ];
     }
 
@@ -43,8 +59,9 @@ class BrandRequest extends FormRequest
     {
         return [
             'brandname' => 'Tên thương hiệu',
-            'slug'      => 'Đường dẫn (Slug)',
-            'status'    => 'Trạng thái',
+            'slug' => 'Slug',
+            'img' => 'Hình ảnh',
+            'status' => 'Trạng thái',
         ];
     }
 }

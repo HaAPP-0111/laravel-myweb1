@@ -8,11 +8,7 @@
     </a>
 </div>
 
-@if(session('success'))
-    <div class="alert alert-success">
-        {{ session('success') }}
-    </div>
-@endif
+<x-admin.alert />
 
 <table class="table table-bordered table-hover table-striped align-middle">
     <thead class="table-dark">
@@ -35,8 +31,8 @@
             <td>{{ $item->id }}</td>
             <td>
                 @php
-                    $imageUrl = ($item->image && file_exists(public_path('images/' . $item->image)))
-                        ? asset('images/' . $item->image)
+                    $imageUrl = $item->image 
+                        ? asset('storage/products/' . $item->image)
                         : asset('images/1.jpg');
                 @endphp
                 <img src="{{ $imageUrl }}" alt="Image" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;">

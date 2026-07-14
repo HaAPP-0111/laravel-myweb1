@@ -4,20 +4,7 @@
 <div class="card p-4 shadow-sm" style="max-width: 700px; margin: 0 auto;">
     <h3 class="mb-4 text-warning fw-bold">SỬA SẢN PHẨM</h3>
 
-    {{-- Hiện thị tất cả lỗi Validation --}}
-    @if($errors->any())
-        <div class="alert alert-danger">
-            <ul>
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
-
-    @if(session('error'))
-        <div class="alert alert-danger">{{ session('error') }}</div>
-    @endif
+    <x-admin.alert />
 
     <form action="{{ route('admin.products.update', $product->id) }}" method="POST" enctype="multipart/form-data">
         @csrf
@@ -95,7 +82,39 @@
             @enderror
         </div>
 
+        <div class="mb-3 img-group">
+            <label class="form-label fw-bold">Hình ảnh chính</label>
+            <input type="file" name="img" class="form-control img-input">
+            <div class="img-preview mt-2">
+                @if ($product->image)
+                    <img src="{{ asset('storage/products/' . $product->image) }}" class="img-thumbnail" width="120">
+                @endif
+            </div>
+            @error('img')
+                <span class="text-danger">{{ $message }}</span>
+            @enderror
+        </div>
 
+        <div class="mb-3 img-group">
+            <label class="form-label fw-bold">Hình ảnh phụ</label>
+            <input type="file" name="imgs[]" class="form-control img-input" multiple>
+            <div class="img-preview mt-2 d-flex flex-wrap gap-2">
+                @foreach ($product->images as $image)
+                    <div class="position-relative sub-image-container" id="sub-image-{{ $image->id }}">
+                        <img src="{{ asset('storage/products/' . $image->image) }}" class="img-thumbnail" width="100" style="height: 100px; object-fit: cover;">
+                        <button type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0 p-1 py-0 btn-delete-sub-image" data-id="{{ $image->id }}" title="Xóa ảnh này">
+                            &times;
+                        </button>
+                    </div>
+                @endforeach
+            </div>
+            @error('imgs')
+                <span class="text-danger">{{ $message }}</span>
+            @enderror
+            @error('imgs.*')
+                <span class="text-danger">{{ $message }}</span>
+            @enderror
+        </div>
 
         <div class="mb-3">
             <label class="form-label fw-bold d-block">Trạng thái</label>
@@ -115,4 +134,39 @@
         </div>
     </form>
 </div>
+
+@section('scripts')
+<script>
+    document.querySelectorAll('.btn-delete-sub-image').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            if (confirm('Bạn có chắc chắn muốn xóa hình ảnh phụ này?')) {
+                const imageId = this.getAttribute('data-id');
+                const container = document.getElementById('sub-image-' + imageId);
+                
+                fetch(`/admin/products/images/${imageId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        container.remove();
+                    } else {
+                        alert(data.message || 'Xóa ảnh thất bại.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Đã xảy ra lỗi khi xóa ảnh phụ.');
+                });
+            }
+        });
+    });
+</script>
+@endsection
 @endsection
