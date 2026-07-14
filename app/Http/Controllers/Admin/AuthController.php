@@ -127,5 +127,6 @@ class AuthController extends Controller
         // điều hướng về page forgot kèm thông báo
         return back()
             ->with('message', 'Đã Gửi mật khẩu mới. Bạn vui lòng kiểm tra email của bạn');
+            // lap10
     }
 }
