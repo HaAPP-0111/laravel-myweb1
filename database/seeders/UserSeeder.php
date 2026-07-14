@@ -28,7 +28,7 @@ class UserSeeder extends Seeder
         DB::table('users')->insert([
             'fullname'   => 'Nhân viên test',
             'username'   => 'staff',
-            'email'      => 'test.666.908@gmail.com', // Dùng để test quên mật khẩu gửi mail
+            'email'      => 'dquangha366@gmail.com', // Dùng để test quên mật khẩu gửi mail
             'password'   => Hash::make('123456'), // Mật khẩu là 123456
             'phone'      => '0987654322',
             'address'    => 'Hà Nội',

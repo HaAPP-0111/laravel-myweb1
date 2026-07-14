@@ -1,0 +1,12 @@
+/* Custom Admin Stylesheet */
+.admin-header {
+    border-bottom: 1px solid #dee2e6;
+}
+.sidebar-link {
+    color: rgba(255,255,255,0.8);
+    transition: all 0.2s ease-in-out;
+}
+.sidebar-link:hover {
+    color: #fff;
+    background-color: rgba(255,255,255,0.1);
+}

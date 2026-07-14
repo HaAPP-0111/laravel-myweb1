@@ -127,6 +127,44 @@ class AuthController extends Controller
         // điều hướng về page forgot kèm thông báo
         return back()
             ->with('message', 'Đã Gửi mật khẩu mới. Bạn vui lòng kiểm tra email của bạn');
-            // lap10
+    }
+
+    // Hiển thị trang Đổi mật khẩu
+    public function changePassword()
+    {
+        return view('admin.auth.changepassword');
+    }
+
+    // Xử lý đổi mật khẩu
+    public function postChangepassword(Request $request)
+    {
+        $request->validate(
+            [
+                'old_password' => 'required',
+                'password'     => 'required|min:6|confirmed',
+            ],
+            [
+                'old_password.required' => 'Mật khẩu cũ không được để trống.',
+                'password.required'     => 'Mật khẩu mới không được để trống.',
+                'password.min'          => 'Mật khẩu mới phải từ 6 ký tự trở lên.',
+                'password.confirmed'    => 'Xác nhận mật khẩu mới không khớp.',
+            ]
+        );
+
+        $user = Auth::user();
+
+        // Kiểm tra mật khẩu cũ có đúng không
+        if (!Hash::check($request->old_password, $user->password)) {
+            return back()
+                ->with('error', 'Mật khẩu cũ không chính xác.')
+                ->withInput();
+        }
+
+        // Cập nhật mật khẩu mới
+        $user->update([
+            'password' => Hash::make($request->password)
+        ]);
+
+        return back()->with('message', 'Đổi mật khẩu thành công!');
     }
 }

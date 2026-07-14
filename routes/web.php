@@ -46,6 +46,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::middleware('auth')->group(function () {
         Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+        Route::get('/changepassword', [AuthController::class, 'changePassword'])->name('changepassword');
+        Route::post('/changepassword', [AuthController::class, 'postChangepassword'])->name('changepassword.post');
 
         // CRUD - Resource route
         Route::middleware('roles:1')->group(function () {

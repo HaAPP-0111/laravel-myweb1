@@ -4,6 +4,9 @@
         <div class="d-flex align-items-center gap-3 ms-auto">
             @if(Auth::check())
                 <span>Xin chào <strong>{{ Auth::user()->fullname }}</strong></span>
+                <a href="{{ route('admin.changepassword') }}" class="text-decoration-none text-primary fw-bold ms-2">
+                    Đổi mật khẩu
+                </a>
                 <form action="{{ route('admin.logout') }}" method="POST" class="m-0">
                     @csrf
                     <button type="submit" class="btn btn-link p-0 text-decoration-none text-danger fw-bold ms-2">
