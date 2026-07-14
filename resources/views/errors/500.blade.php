@@ -19,3 +19,6 @@ font-size: 3rem;
 <p>500 - Lỗi hệ thống</p>
 </body>
 </html>
+/**
+     * lap 12//
+     */
