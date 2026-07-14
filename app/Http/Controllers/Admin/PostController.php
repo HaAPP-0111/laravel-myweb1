@@ -103,13 +103,58 @@ class PostController extends Controller
 
     public function destroy(string $id)
     {
-        $post = Post::find($id);
-        if ($post) {
-            if ($post->image && file_exists(public_path('uploads/posts/' . $post->image))) {
-                unlink(public_path('uploads/posts/' . $post->image));
-            }
+        try {
+            $post = Post::findOrFail($id);
             $post->delete();
+            return redirect()
+                ->route('admin.posts.index')
+                ->with('success', 'Xóa thành công.');
+        } catch (\Exception $e) {
+            return redirect()
+                ->back()
+                ->with('error', 'Thực hiện thất bại.');
         }
-        return redirect()->route('admin.posts.index')->with('success', 'Xóa bài viết thành công!');
+    }
+
+    public function trash()
+    {
+        $limit = 10;
+        $list = Post::onlyTrashed()
+            ->orderBy('title')
+            ->paginate($limit);
+
+        return view('admin.posts.trash', compact('list'));
+    }
+
+    public function restore(string $id)
+    {
+        try {
+            Post::onlyTrashed()->findOrFail($id)->restore();
+            return redirect()
+                ->route('admin.posts.trash')
+                ->with('success', 'Khôi phục thành công.');
+        } catch (\Exception $e) {
+            return redirect()
+                ->back()
+                ->with('error', 'Thực hiện thất bại.');
+        }
+    }
+
+    public function forceDelete(string $id)
+    {
+        try {
+            $post = Post::onlyTrashed()->findOrFail($id);
+            if ($post->image && file_exists(public_path('images/' . $post->image))) {
+                unlink(public_path('images/' . $post->image));
+            }
+            $post->forceDelete();
+            return redirect()
+                ->route('admin.posts.trash')
+                ->with('success', 'Xóa vĩnh viễn thành công.');
+        } catch (\Exception $e) {
+            return redirect()
+                ->back()
+                ->with('error', 'Thực hiện thất bại.');
+        }
     }
 }

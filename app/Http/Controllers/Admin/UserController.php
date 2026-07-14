@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\UserRequest;
 use Illuminate\Support\Facades\Hash;
+use App\Models\User;
 
 class UserController extends Controller
 {
@@ -92,14 +93,56 @@ class UserController extends Controller
         return redirect()->route('admin.users.index')->with('success', 'Cập nhật thành viên thành công!');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(string $id)
     {
-        // Thực hiện xóa tài khoản dựa trên ID
-        DB::table('users')->where('id', $id)->delete();
+        try {
+            $user = User::findOrFail($id);
+            $user->delete();
+            return redirect()
+                ->route('admin.users.index')
+                ->with('success', 'Xóa thành công.');
+        } catch (\Exception $e) {
+            return redirect()
+                ->back()
+                ->with('error', 'Thực hiện thất bại.');
+        }
+    }
 
-        return redirect()->route('admin.users.index')->with('success', 'Xóa thành viên thành công!');
+    public function trash()
+    {
+        $limit = 10;
+        $list = User::onlyTrashed()
+            ->orderBy('username')
+            ->paginate($limit);
+
+        return view('admin.users.trash', compact('list'));
+    }
+
+    public function restore(string $id)
+    {
+        try {
+            User::onlyTrashed()->findOrFail($id)->restore();
+            return redirect()
+                ->route('admin.users.trash')
+                ->with('success', 'Khôi phục thành công.');
+        } catch (\Exception $e) {
+            return redirect()
+                ->back()
+                ->with('error', 'Thực hiện thất bại.');
+        }
+    }
+
+    public function forceDelete(string $id)
+    {
+        try {
+            User::onlyTrashed()->findOrFail($id)->forceDelete();
+            return redirect()
+                ->route('admin.users.trash')
+                ->with('success', 'Xóa vĩnh viễn thành công.');
+        } catch (\Exception $e) {
+            return redirect()
+                ->back()
+                ->with('error', 'Thực hiện thất bại.');
+        }
     }
 }

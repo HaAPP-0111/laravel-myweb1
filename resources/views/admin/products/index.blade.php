@@ -3,9 +3,16 @@
 @section('content')
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h2>DANH SÁCH SẢN PHẨM</h2>
-    <a href="{{ route('admin.products.create') }}" class="btn btn-primary mb-2">
-        <i class="bi bi-plus-circle"></i> Thêm mới
-    </a>
+    @if(Auth::user()->role == 1)
+    <div class="d-flex gap-2">
+        <a href="{{ route('admin.products.create') }}" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Thêm mới
+        </a>
+        <a href="{{ route('admin.products.trash') }}" class="btn btn-danger">
+            <i class="bi bi-trash"></i> Thùng rác
+        </a>
+    </div>
+    @endif
 </div>
 
 <x-admin.alert />
@@ -21,7 +28,9 @@
             <th>Giá gốc</th>
             <th>Giá giảm</th>
             <th>Trạng thái</th>
+            @if(Auth::user()->role == 1)
             <th class="text-center" style="width: 120px;">Chức năng</th>
+            @endif
         </tr>
     </thead>
     <tbody>
@@ -46,6 +55,7 @@
                     {{ $item->status == 1 ? 'Mở bán' : 'Ẩn' }}
                 </span>
             </td>
+            @if(Auth::user()->role == 1)
             <td class="text-center">
                 <div class="d-flex gap-1 justify-content-center">
                     <a href="{{ route('admin.products.edit', $item->id) }}" class="btn btn-warning btn-sm">
@@ -61,6 +71,7 @@
                     </form>
                 </div>
             </td>
+            @endif
         </tr>
         @endforeach
     </tbody>

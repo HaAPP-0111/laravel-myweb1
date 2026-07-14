@@ -204,23 +204,64 @@ class ProductController extends Controller
         }
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(string $id)
     {
-        $product = Product::with('images')->find($id);
-        if ($product) {
+        try {
+            $product = Product::findOrFail($id);
+            $product->delete();
+            return redirect()
+                ->route('admin.products.index')
+                ->with('success', 'Xóa thành công.');
+        } catch (\Exception $e) {
+            return redirect()
+                ->back()
+                ->with('error', 'Thực hiện thất bại.');
+        }
+    }
+
+    public function trash()
+    {
+        $limit = 10;
+        $list = Product::onlyTrashed()
+            ->orderBy('productname')
+            ->paginate($limit);
+
+        return view('admin.products.trash', compact('list'));
+    }
+
+    public function restore(string $id)
+    {
+        try {
+            Product::onlyTrashed()->findOrFail($id)->restore();
+            return redirect()
+                ->route('admin.products.trash')
+                ->with('success', 'Khôi phục thành công.');
+        } catch (\Exception $e) {
+            return redirect()
+                ->back()
+                ->with('error', 'Thực hiện thất bại.');
+        }
+    }
+
+    public function forceDelete(string $id)
+    {
+        try {
+            $product = Product::onlyTrashed()->with('images')->findOrFail($id);
             if ($product->image) {
                 Storage::disk('public')->delete('products/' . $product->image);
             }
             foreach ($product->images as $subImg) {
                 Storage::disk('public')->delete('products/' . $subImg->image);
             }
-            $product->delete();
+            $product->forceDelete();
+            return redirect()
+                ->route('admin.products.trash')
+                ->with('success', 'Xóa vĩnh viễn thành công.');
+        } catch (\Exception $e) {
+            return redirect()
+                ->back()
+                ->with('error', 'Thực hiện thất bại.');
         }
-
-        return redirect()->route('admin.products.index')->with('success', 'Xóa sản phẩm thành công!');
     }
 
     /**

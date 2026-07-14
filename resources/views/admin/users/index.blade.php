@@ -3,7 +3,14 @@
 @section('content')
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h2>DANH SÁCH NGƯỜI DÙNG</h2>
-    <a href="{{ route('admin.users.create') }}" class="btn btn-success">+ Thêm mới</a>
+    <div class="d-flex gap-2">
+        <a href="{{ route('admin.users.create') }}" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Thêm mới
+        </a>
+        <a href="{{ route('admin.users.trash') }}" class="btn btn-danger">
+            <i class="bi bi-trash"></i> Thùng rác
+        </a>
+    </div>
 </div>
 
 @if(session('success'))

@@ -51,12 +51,30 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         // CRUD - Resource route
         Route::middleware('roles:1')->group(function () {
-            // Hiển thị danh sách dữ liệu đã xóa mềm Soft Delete (Thùng rác)
+            // Categories Trash
             Route::get('trash/categories', [CategoryController::class, 'trash'])->name('categories.trash');
-            // Khôi phục
             Route::patch('categories/{id}/restore', [CategoryController::class, 'restore'])->name('categories.restore');
-            // Xóa vĩnh viễn
             Route::delete('categories/{id}/forcedelete', [CategoryController::class, 'forceDelete'])->name('categories.forceDelete');
+
+            // Brands Trash
+            Route::get('trash/brands', [BrandController::class, 'trash'])->name('brands.trash');
+            Route::patch('brands/{id}/restore', [BrandController::class, 'restore'])->name('brands.restore');
+            Route::delete('brands/{id}/forcedelete', [BrandController::class, 'forceDelete'])->name('brands.forceDelete');
+
+            // Products Trash
+            Route::get('trash/products', [ProductController::class, 'trash'])->name('products.trash');
+            Route::patch('products/{id}/restore', [ProductController::class, 'restore'])->name('products.restore');
+            Route::delete('products/{id}/forcedelete', [ProductController::class, 'forceDelete'])->name('products.forceDelete');
+
+            // Posts Trash
+            Route::get('trash/posts', [PostController::class, 'trash'])->name('posts.trash');
+            Route::patch('posts/{id}/restore', [PostController::class, 'restore'])->name('posts.restore');
+            Route::delete('posts/{id}/forcedelete', [PostController::class, 'forceDelete'])->name('posts.forceDelete');
+
+            // Users Trash
+            Route::get('trash/users', [UserController::class, 'trash'])->name('users.trash');
+            Route::patch('users/{id}/restore', [UserController::class, 'restore'])->name('users.restore');
+            Route::delete('users/{id}/forcedelete', [UserController::class, 'forceDelete'])->name('users.forceDelete');
 
             Route::resource('categories', CategoryController::class);
             Route::resource('brands', BrandController::class);

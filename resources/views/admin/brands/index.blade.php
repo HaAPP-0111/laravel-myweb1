@@ -3,9 +3,14 @@
 @section('content')
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h2>DANH SÁCH THƯƠNG HIỆU</h2>
-    <a href="{{ route('admin.brands.create') }}" class="btn btn-primary">
-        <i class="bi bi-plus-circle"></i> Thêm mới
-    </a>
+    <div class="d-flex gap-2">
+        <a href="{{ route('admin.brands.create') }}" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Thêm mới
+        </a>
+        <a href="{{ route('admin.brands.trash') }}" class="btn btn-danger">
+            <i class="bi bi-trash"></i> Thùng rác
+        </a>
+    </div>
 </div>
 
 <x-admin.alert />

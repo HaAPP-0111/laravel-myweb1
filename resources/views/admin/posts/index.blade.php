@@ -3,9 +3,14 @@
 @section('content')
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h2>DANH SÁCH BÀI VIẾT</h2>
-    <a href="{{ route('admin.posts.create') }}" class="btn btn-primary">
-        <i class="bi bi-plus-circle"></i> Thêm mới
-    </a>
+    <div class="d-flex gap-2">
+        <a href="{{ route('admin.posts.create') }}" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Thêm mới
+        </a>
+        <a href="{{ route('admin.posts.trash') }}" class="btn btn-danger">
+            <i class="bi bi-trash"></i> Thùng rác
+        </a>
+    </div>
 </div>
 
 @if(session('success'))
@@ -52,6 +57,13 @@
                     <a href="{{ route('admin.posts.edit', $item->id) }}" class="btn btn-warning btn-sm">
                         <i class="bi bi-pencil-square"></i>
                     </a>
+                    <form action="{{ route('admin.posts.destroy', $item->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Bạn có chắc chắn muốn xóa bài viết này?')">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-danger btn-sm">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </form>
                 </div>
             </td>
         </tr>

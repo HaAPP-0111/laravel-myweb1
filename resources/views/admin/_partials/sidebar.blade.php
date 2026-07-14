@@ -30,7 +30,6 @@
             <div class="collapse show" id="adminSystemMenu">
 
                 <ul class="nav flex-column ms-3 mt-1 gap-1">
-
                     <li class="nav-item">
                         <a class="nav-link text-white-50" href="{{ route('admin.categories.index') }}">
                             <i class="bi bi-tags-fill me-1"></i> Loại sản phẩm
@@ -60,7 +59,6 @@
                             <i class="bi bi-people-fill me-1"></i> Người dùng
                         </a>
                     </li>
-
                 </ul>
 
             </div>
